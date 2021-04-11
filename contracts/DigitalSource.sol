@@ -4,6 +4,12 @@ import "./owner/Operator.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract DigitalSource is Operator{
+    event CreateDigitalArt(uint256 _artId,
+                address _creator, 
+                address[] _assistants, 
+                uint256[] _benefits,
+                uint256 _totalEdition, 
+                string _uri);
 
     //artid  => art work detail
     mapping(uint256 => DigitalArt) digitalArts;
@@ -31,7 +37,7 @@ contract DigitalSource is Operator{
                 address[] memory _assistants, 
                 uint256[] memory _benefits,
                 uint256 _totalEdition, 
-                string memory _uri) external returns (uint256){
+                string memory _uri) external onlyOperator() returns (uint256){
         _artIds.increment();
         uint256 artId = _artIds.current();
         DigitalArt storage digitalArt = digitalArts[artId];
@@ -40,11 +46,12 @@ contract DigitalSource is Operator{
         digitalArt.benefits = _benefits;
         digitalArt.uri = _uri;
         digitalArt.currentEdition = 0;
+        emit CreateDigitalArt(artId, _creator, _assistants, _benefits, _totalEdition, _uri);
     }
 
     function increaseDigitalArtEdition(
                 uint256 _artId, 
-                uint256 _count)  external {
+                uint256 _count)  external onlyOperator(){
         DigitalArt storage digitalArt = digitalArts[_artId];
         digitalArt.currentEdition = digitalArt.currentEdition + _count;
     }

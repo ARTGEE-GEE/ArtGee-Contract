@@ -2,17 +2,29 @@ pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./util/StringUtils.sol";
 import "./owner/Operator.sol";
 import "./interfaces/IDigitalSource.sol";
 
-contract ArtGeeNft is ERC721,Operator{
+contract ArtGeeNft is ERC721, Operator, Pausable{
+
+    event CreateArt(uint256 _artId, address _owner,uint256 _tokenId, 
+                    uint256 _edition,uint256 _totalEdition,string _uri);
+    event UpdateEdition(uint256 _artId, uint256 edition);
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     using SafeMath for uint256;
 
+    //tokenId => limitCount
+    mapping(uint256 => uint256) limitCount;
+    // market => in transfer list
+    mapping(address => bool) transferList;
+
     IDigitalSource public iDigitalSource;
+
+    mapping(address => bool) public blackList;
 
     //tokenId => TokenArt
     mapping(uint256 => TokenArt) public tokenArts;
@@ -38,79 +50,132 @@ contract ArtGeeNft is ERC721,Operator{
 
     mapping(uint256 => string) public names;
 
-    modifier onlyMiner(){
-        require(miners[msg.sender],"Not miner");
+    modifier onlyNotBlack(){
+        require(blackList[msg.sender],"Creator not approve");
         _;
     }
 
     constructor(IDigitalSource _iDigitalSource) public ERC721("AAAA", "AAAA") {
         iDigitalSource = _iDigitalSource;
+        super._setBaseURI("ipfs://ipfs/");
+    }
+
+    function getSourceArtIds() view public returns(uint256[] memory){
+        return iDigitalSource.getArtIds();
+    }
+
+    function getSourceDigitalCreator(uint256 _artId) view public returns(
+                address[] memory creators,
+                uint256[] memory benefits){
+        return iDigitalSource.getDigitalCreator(_artId);
+    }
+
+    function getSourceDigitalArt(uint256 _artId) view public returns(
+                uint256 id,
+                uint256 totalEdition,
+                uint256 currentEdition,
+                address creator,
+                address[] memory assistants,
+                uint256[] memory benefits,
+                string memory uri
+    ){
+        return iDigitalSource.getDigitalArt(_artId);
     }
 
     function tokensOfOwner(address _owner) view public returns(uint256[] memory _tokens){
         return _ownedTokens[_owner];
     }
 
-    function addMiner(address _miner) public onlyOwner(){
-        miners[_miner] = true;
+    function addBlackList(address _black) public onlyOwner(){
+        blackList[_black] = true;
     }
 
-    function removeMiner(address _miner) public onlyOwner(){
-        miners[_miner] = false;
+    function removeBlackList(address _black) public onlyOwner(){
+        blackList[_black] = false;
+    }
+
+    function addTransferList(address _transferAddr) public onlyOwner(){
+        transferList[_transferAddr] = true;
+    }
+
+    function removeTransferList(address _transferAddr) public onlyOwner(){
+        transferList[_transferAddr] = false;
     }
 
     function setBaseURI(string memory _baseURI) public onlyOwner(){
+        //ipfs://ipfs/
         super._setBaseURI(_baseURI);
     }
 
-     /**
+    function canTransfer(uint256 _tokenId) view public returns(bool) {
+        return limitCount[_tokenId]>1;
+    }
+
+    /**
      * @dev See {IERC721-transferFrom}.
      */
     function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+        //limit first transfer must sale on artgee market
+        require(msg.sender == address(this)
+                || limitCount[tokenId]>1
+                || transferList[msg.sender],
+                "Limit first transfer must sale on artgee market");
         super.transferFrom(from, to, tokenId);
         _removeTokenFromOwnerEnumeration(from, tokenId);
         _addTokenToOwnerEnumeration(to, tokenId);
+        _addTransferLimit(tokenId);
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
     function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
-      _safeTransferFrom(from,to,tokenId,"");
+        _safeTransferFrom(from,to,tokenId,"");
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
     function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public virtual override {
-      _safeTransferFrom(from,to,tokenId,_data);
+        _safeTransferFrom(from,to,tokenId,_data);
     }
 
     function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
-      super.safeTransferFrom(from, to, tokenId, _data);
-      _removeTokenFromOwnerEnumeration(from, tokenId);
-      _addTokenToOwnerEnumeration(to, tokenId);
+        require(msg.sender == address(this)
+                || limitCount[tokenId]>1
+                || transferList[msg.sender],
+                "Limit first transfer must sale on artgee market");
+        super.safeTransferFrom(from, to, tokenId, _data);
+        _removeTokenFromOwnerEnumeration(from, tokenId);
+        _addTokenToOwnerEnumeration(to, tokenId);
+        _addTransferLimit(tokenId);
+    }
+
+    function _addTransferLimit(uint256 _tokenId) internal{
+        if(limitCount[_tokenId]==0){
+            limitCount[_tokenId] = limitCount[_tokenId].add(1);
+        }
     }
 
     //todo
     function createArt(address[] memory _assistants,uint256[] memory _benefits,uint256 _totalEdition,
                 string memory _uri,
-                uint256 _count) public{
+                uint256 _count) public whenNotPaused() onlyNotBlack(){
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,
                                 _assistants, 
                                 _benefits, 
                                 _totalEdition, 
                                 _uri);
-        _addItem(msg.sender, _artId, _count);
+        _createArt(msg.sender, _artId, _count);
     }
 
     //todo
-    function addArt(uint256 _artId, uint256 _count) public{
-        _addItem(msg.sender, _artId, _count);
+    function addArt(uint256 _artId, uint256 _count) public whenNotPaused() onlyNotBlack(){
+        _createArt(msg.sender, _artId, _count);
     }
 
-    function _addItem(address _creator,uint256 _artId,uint256 _count)
+    function _createArt(address _creator,uint256 _artId,uint256 _count)
         internal
     {
         (uint256 id,
@@ -119,7 +184,7 @@ contract ArtGeeNft is ERC721,Operator{
         address creator,,,string memory uri)=iDigitalSource.getDigitalArt(_artId);
         require(msg.sender == creator ,"Not creator");
         require(_count.add(currentEdition) <= totalEdition, "Total supply exceeded.");
-        string memory tokenURI = StringUtils.strConcat("ipfs://ipfs/", uri);
+        string memory tokenURI = StringUtils.strConcat(baseURI(), uri);
         for (uint256 index = 0; index < _count; index++) {
             _tokenIds.increment();
             uint256 newItemId = _tokenIds.current();
@@ -132,12 +197,15 @@ contract ArtGeeNft is ERC721,Operator{
             _setTokenURI(newItemId, tokenURI);
             _addTokenToAllTokensEnumeration(newItemId);
             _addTokenToOwnerEnumeration(_creator, newItemId);
+            emit CreateArt(_artId, _creator, newItemId, 
+                    _edition,totalEdition,uri);
         }
         iDigitalSource.increaseDigitalArtEdition(_artId, _count);
         //event
+        emit UpdateEdition(_artId,currentEdition.add(_count));
     }
 
-    function burnItem(uint256 _id) public onlyMiner(){
+    function burnItem(uint256 _id) public{
         _burn(_id);
         _removeTokenFromOwnerEnumeration(ownerOf(_id), _id);
         // Since tokenId will be deleted, we can clear its slot in _ownedTokensIndex to trigger a gas refund

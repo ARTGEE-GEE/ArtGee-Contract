@@ -81,7 +81,7 @@
        network_id: '1',
        //0xA2FD306DDAf9397896Fa2a2c1588e45fA1a25b25
        provider: () => new HDWalletProvider(
-         "action birth outdoor ancient claw offer pass sniff venture social artist judge",
+         "",
          'wss://mainnet.infura.io/ws/v3/'+infuraKey1,
        ),
        gasPrice: 80000000000, // 10 gwei
@@ -92,7 +92,7 @@
      ropsten: {
        network_id: '3',
        provider: () => new HDWalletProvider(
-         "turn shoot wheel oxygen critic search dose that sauce fresh deposit special",
+         "",
          'wss://ropsten.infura.io/ws/v3/'+infuraKey1,
        ),
        gasPrice: 10000000000, // 10 gwei
@@ -103,7 +103,7 @@
      rinkeby: {
        network_id: '4',
        provider: () => new HDWalletProvider(
-         "another spy income panda feed wish trial coconut unveil ribbon happy veteran",
+         "",
          'wss://rinkeby.infura.io/ws/v3/'+infuraKey2,
        ),
        gasPrice: 10000000000, // 10 gwei
@@ -116,7 +116,7 @@
        //chainId:65
        network_id: '65',
        provider: () => new HDWalletProvider(
-         "turn shoot wheel oxygen critic search dose that sauce fresh deposit special",
+         "",
          'https://exchaintest.okexcn.com',
        ),
        gasPrice: 10000000000, // 2 gwei
@@ -130,7 +130,7 @@
        //https://http-mainnet.hecochain.com chainId:128
        network_id: '256',
        provider: () => new HDWalletProvider(
-         "turn shoot wheel oxygen critic search dose that sauce fresh deposit special",
+         "",
          // 'https://http-testnet.hecochain.com',
          'wss://heco-testnet.apron.network/ws/v1/c0f10914c5db40179fb86ee957820139',
        ),
@@ -145,7 +145,7 @@
        //https://http-mainnet.hecochain.com chainId:128
        network_id: '97',
        provider: () => new HDWalletProvider(
-         "turn shoot wheel oxygen critic search dose that sauce fresh deposit special",
+         "",
          // 'https://http-testnet.hecochain.com',
          'https://data-seed-prebsc-2-s3.binance.org:8545',
        ),
@@ -160,7 +160,7 @@
        network_id: '128',
        provider: () => new HDWalletProvider(
          //0x31c0bCD9D3f6b5a223633E02BD43128B12909Ec4
-         "daring season blade deer kangaroo dizzy cheap gorilla fever near beyond stamp",
+         "",
          'wss://heco.apron.network/ws/v1/c0f10914c5db40179fb86ee957820139',
        ),
        gasPrice: 2000000000, // 2 gwei

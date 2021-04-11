@@ -1,6 +1,5 @@
 ### install
 
-    yarn
     npm install @openzeppelin/contracts
     npm install @truffle/hdwallet-provider
 

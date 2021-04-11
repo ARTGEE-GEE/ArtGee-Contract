@@ -13,6 +13,8 @@ contract DigitalSource is Operator{
     //artid  => art work detail
     mapping(uint256 => DigitalArt) digitalArts;
 
+    mapping (string=>bool) public metadataExist;
+
     uint256[] public artIds;
 
     struct DigitalArt{
@@ -35,9 +37,12 @@ contract DigitalSource is Operator{
                 uint256[] memory _benefits,
                 uint256 _totalEdition, 
                 string memory _uri) external onlyOperator() returns (uint256){
-        uint256 artId = artIds.length;
+        uint256 artId = 10000 + artIds.length;
+        require(!metadataExist[_uri],"Metadata exist!");
+        metadataExist[_uri] = true;
         DigitalArt storage digitalArt = digitalArts[artId];
         digitalArt.creator = _creator;
+        digitalArt.id = artId;
         digitalArt.assistants = _assistants;
         digitalArt.benefits = _benefits;
         digitalArt.uri = _uri;
@@ -45,6 +50,7 @@ contract DigitalSource is Operator{
         digitalArt.currentEdition = 0;
         artIds.push(artId);
         emit CreateDigitalArt(artId, _creator, _assistants, _benefits, _totalEdition, _uri);
+        return artId;
     }
 
     function increaseDigitalArtEdition(

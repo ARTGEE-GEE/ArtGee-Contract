@@ -32,6 +32,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     struct TokenArt {
         uint256 artId;
         uint256 edition;
+        uint256 totalEdition;
     }
 
      // Mapping from owner to list of owned token IDs
@@ -140,7 +141,10 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     function createArt(address[] memory _assistants,uint256[] memory _benefits,uint256 _totalEdition,
                 string memory _uri,
                 uint256 _count) public whenNotPaused(){
-        require(!blackList[msg.sender],"Creator not approve");
+        require(!blackList[msg.sender],"Creator is forbidden");
+        if(_assistants.length>0){
+            require(_assistants.length + 1 == _benefits.length,"Benefits length error");
+        }
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,
                                 _assistants, 
@@ -170,7 +174,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
             uint256 newItemId = _tokenIds.current();
             uint256 _edition = _currentEdition.add(index).add(1);
             //bind artId
-            TokenArt memory tokenArt = TokenArt(_artId,_edition);
+            TokenArt memory tokenArt = TokenArt(_artId,_edition,_totalEdition);
             //bind current info
             tokenArts[newItemId] = tokenArt;
             _mint(msg.sender, newItemId);

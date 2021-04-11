@@ -22,6 +22,6 @@
 
     测试网络：rinkeby 
     DigitalSource   存储artId相关信息
-    0xA44E7Fe085c02f9620433a84984A564EAFa677D8
+    0x59A94a3CB7b022Fc3228Af22ED7497ede254ff25
     ArtGeeNft       铸造的nft
-    0x4E4e42640044094B1f6cDcF369DF66d5f03ad51B
+    0xb31E832570d906d7b57545EcD45B6B0Ace3657d4

@@ -18,7 +18,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     using SafeMath for uint256;
 
     //tokenId => limitCount
-    mapping(uint256 => uint256) limitCount;
+    mapping(uint256 => uint256) public limitCount;
     // market => in transfer list
     mapping(address => bool) transferList;
 
@@ -48,26 +48,9 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
 
     mapping(address => bool) public miners;
 
-    mapping(uint256 => string) public names;
-
-    modifier onlyNotBlack(){
-        require(blackList[msg.sender],"Creator not approve");
-        _;
-    }
-
     constructor(IDigitalSource _iDigitalSource) public ERC721("AAAA", "AAAA") {
         iDigitalSource = _iDigitalSource;
         super._setBaseURI("ipfs://ipfs/");
-    }
-
-    function getSourceArtIds() view public returns(uint256[] memory){
-        return iDigitalSource.getArtIds();
-    }
-
-    function getSourceDigitalCreator(uint256 _artId) view public returns(
-                address[] memory creators,
-                uint256[] memory benefits){
-        return iDigitalSource.getDigitalCreator(_artId);
     }
 
     function getSourceDigitalArt(uint256 _artId) view public returns(
@@ -105,10 +88,6 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     function setBaseURI(string memory _baseURI) public onlyOwner(){
         //ipfs://ipfs/
         super._setBaseURI(_baseURI);
-    }
-
-    function canTransfer(uint256 _tokenId) view public returns(bool) {
-        return limitCount[_tokenId]>1;
     }
 
     /**
@@ -160,49 +139,50 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     //todo
     function createArt(address[] memory _assistants,uint256[] memory _benefits,uint256 _totalEdition,
                 string memory _uri,
-                uint256 _count) public whenNotPaused() onlyNotBlack(){
+                uint256 _count) public whenNotPaused(){
+        require(!blackList[msg.sender],"Creator not approve");
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,
                                 _assistants, 
                                 _benefits, 
                                 _totalEdition, 
                                 _uri);
-        _createArt(msg.sender, _artId, _count);
+        _createArt(_artId, _count,0,_totalEdition,_uri);
     }
 
     //todo
-    function addArt(uint256 _artId, uint256 _count) public whenNotPaused() onlyNotBlack(){
-        _createArt(msg.sender, _artId, _count);
+    function addArt(uint256 _artId, uint256 _count) public whenNotPaused(){
+        require(!blackList[msg.sender],"Creator not approve");
+         (,uint256 totalEdition,uint256 currentEdition,address creator,,,string memory uri)=iDigitalSource.getDigitalArt(_artId);
+        require(msg.sender == creator ,"Not creator");
+        _createArt(_artId, _count,currentEdition,totalEdition,uri);
     }
 
-    function _createArt(address _creator,uint256 _artId,uint256 _count)
+    function _createArt(uint256 _artId,
+                        uint256 _count,
+                        uint256 _currentEdition,
+                        uint256 _totalEdition,string memory _uri)
         internal
     {
-        (uint256 id,
-        uint256 totalEdition,
-        uint256 currentEdition,
-        address creator,,,string memory uri)=iDigitalSource.getDigitalArt(_artId);
-        require(msg.sender == creator ,"Not creator");
-        require(_count.add(currentEdition) <= totalEdition, "Total supply exceeded.");
-        string memory tokenURI = StringUtils.strConcat(baseURI(), uri);
+        require(_count.add(_currentEdition) <= _totalEdition, "Total supply exceeded.");
         for (uint256 index = 0; index < _count; index++) {
             _tokenIds.increment();
             uint256 newItemId = _tokenIds.current();
-            uint256 _edition = currentEdition.add(index).add(1);
+            uint256 _edition = _currentEdition.add(index).add(1);
             //bind artId
             TokenArt memory tokenArt = TokenArt(_artId,_edition);
             //bind current info
             tokenArts[newItemId] = tokenArt;
-            _mint(_creator, newItemId);
-            _setTokenURI(newItemId, tokenURI);
+            _mint(msg.sender, newItemId);
+            _setTokenURI(newItemId, _uri);
             _addTokenToAllTokensEnumeration(newItemId);
-            _addTokenToOwnerEnumeration(_creator, newItemId);
-            emit CreateArt(_artId, _creator, newItemId, 
-                    _edition,totalEdition,uri);
+            _addTokenToOwnerEnumeration(msg.sender, newItemId);
+            emit CreateArt(_artId, msg.sender, newItemId, 
+                    _edition,_totalEdition,_uri);
         }
         iDigitalSource.increaseDigitalArtEdition(_artId, _count);
         //event
-        emit UpdateEdition(_artId,currentEdition.add(_count));
+        emit UpdateEdition(_artId,_currentEdition.add(_count));
     }
 
     function burnItem(uint256 _id) public{

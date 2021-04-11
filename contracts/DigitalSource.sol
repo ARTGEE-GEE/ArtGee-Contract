@@ -1,7 +1,6 @@
 pragma solidity ^0.6.0;
 
 import "./owner/Operator.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract DigitalSource is Operator{
     event CreateDigitalArt(uint256 _artId,
@@ -13,8 +12,6 @@ contract DigitalSource is Operator{
 
     //artid  => art work detail
     mapping(uint256 => DigitalArt) digitalArts;
-    using Counters for Counters.Counter;
-    Counters.Counter private _artIds;
 
     uint256[] public artIds;
 
@@ -38,14 +35,15 @@ contract DigitalSource is Operator{
                 uint256[] memory _benefits,
                 uint256 _totalEdition, 
                 string memory _uri) external onlyOperator() returns (uint256){
-        _artIds.increment();
-        uint256 artId = _artIds.current();
+        uint256 artId = artIds.length;
         DigitalArt storage digitalArt = digitalArts[artId];
         digitalArt.creator = _creator;
         digitalArt.assistants = _assistants;
         digitalArt.benefits = _benefits;
         digitalArt.uri = _uri;
+        digitalArt.totalEdition = _totalEdition;
         digitalArt.currentEdition = 0;
+        artIds.push(artId);
         emit CreateDigitalArt(artId, _creator, _assistants, _benefits, _totalEdition, _uri);
     }
 

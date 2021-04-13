@@ -7,6 +7,10 @@ import "./util/StringUtils.sol";
 import "./owner/Operator.sol";
 import "./interfaces/IDigitalSource.sol";
 
+/// @title artgee nft
+/// @author yzbbanban
+/// @notice finish create nft,add art id
+/// @dev Explain to a developer any extra details
 contract ArtGeeNft is ERC721, Operator, Pausable{
 
     event CreateArt(uint256 _artId, address _owner,uint256 _tokenId, 
@@ -54,6 +58,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         super._setBaseURI("ipfs://ipfs/");
     }
 
+    //get art detail by art id
     function getSourceDigitalArt(uint256 _artId) view public returns(
                 uint256 id,
                 uint256 totalEdition,
@@ -137,7 +142,15 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         }
     }
 
-    //todo
+     /**
+     * @dev create art
+     *
+     * @param _assistants assistant
+     * @param _benefits benefits of assistants(contain creator,index 0)
+     * @param _totalEdition total edition
+     * @param _uri metadate
+     * @param _count edition count
+     */
     function createArt(address[] memory _assistants,uint256[] memory _benefits,uint256 _totalEdition,
                 string memory _uri,
                 uint256 _count) public whenNotPaused(){
@@ -145,6 +158,8 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         if(_assistants.length>0){
             require(_assistants.length + 1 == _benefits.length,"Benefits length error");
         }
+        require(_count <= 50,"Count overflow");
+        //create art id
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,
                                 _assistants, 
@@ -154,7 +169,11 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         _createArt(_artId, _count,0,_totalEdition,_uri);
     }
 
-    //todo
+    /**
+     * @dev add art
+     * @param _artId artid
+     * @param _count tcount
+     */
     function addArt(uint256 _artId, uint256 _count) public whenNotPaused(){
         require(!blackList[msg.sender],"Creator not approve");
          (,uint256 totalEdition,uint256 currentEdition,address creator,,,string memory uri)=iDigitalSource.getDigitalArt(_artId);
@@ -178,6 +197,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
             //bind current info
             tokenArts[newItemId] = tokenArt;
             _mint(msg.sender, newItemId);
+            //set metadata
             _setTokenURI(newItemId, _uri);
             _addTokenToAllTokensEnumeration(newItemId);
             _addTokenToOwnerEnumeration(msg.sender, newItemId);

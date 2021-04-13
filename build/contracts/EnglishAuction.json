@@ -1,0 +1,127 @@
+{
+  "contractName": "EnglishAuction",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"author\":\"The name of the author\",\"details\":\"Explain to a developer any extra details\",\"kind\":\"dev\",\"methods\":{},\"title\":\"A title that should describe the contract/interface\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Explain to an end user what this does\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/EnglishAuction.sol\":\"EnglishAuction\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/EnglishAuction.sol\":{\"keccak256\":\"0x1bcfb27b52762939a8248f5698e39b2b7288a96c55a941baf0439ba2d3441423\",\"urls\":[\"bzz-raw://9911d59088cc1669e807c7bb33e1e433fd6322010ec8b7be2f443319917c8bcf\",\"dweb:/ipfs/QmPyVkjXPdc9PuB4EKpFCEVqBK2UoRpfdLyLNMXjz1JN9V\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220fef2270e20d2e50cb317bd4e297f4ec04846bfeaed9adba16f4b36bfe7b9445064736f6c634300060c0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220fef2270e20d2e50cb317bd4e297f4ec04846bfeaed9adba16f4b36bfe7b9445064736f6c634300060c0033",
+  "immutableReferences": {},
+  "sourceMap": "223:32:2:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "223:32:2:-:0;;;;;",
+  "source": "pragma solidity ^0.6.2;\n\n/// @title A title that should describe the contract/interface\n/// @author The name of the author\n/// @notice Explain to an end user what this does\n/// @dev Explain to a developer any extra details\ncontract EnglishAuction {\n    \n}",
+  "sourcePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/EnglishAuction.sol",
+  "ast": {
+    "absolutePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/EnglishAuction.sol",
+    "exportedSymbols": {
+      "EnglishAuction": [
+        1104
+      ]
+    },
+    "id": 1105,
+    "license": null,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1102,
+        "literals": [
+          "solidity",
+          "^",
+          "0.6",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:2"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1103,
+          "nodeType": "StructuredDocumentation",
+          "src": "25:198:2",
+          "text": "@title A title that should describe the contract/interface\n @author The name of the author\n @notice Explain to an end user what this does\n @dev Explain to a developer any extra details"
+        },
+        "fullyImplemented": true,
+        "id": 1104,
+        "linearizedBaseContracts": [
+          1104
+        ],
+        "name": "EnglishAuction",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1105,
+        "src": "223:32:2"
+      }
+    ],
+    "src": "0:255:2"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/EnglishAuction.sol",
+    "exportedSymbols": {
+      "EnglishAuction": [
+        1104
+      ]
+    },
+    "id": 1105,
+    "license": null,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1102,
+        "literals": [
+          "solidity",
+          "^",
+          "0.6",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:2"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1103,
+          "nodeType": "StructuredDocumentation",
+          "src": "25:198:2",
+          "text": "@title A title that should describe the contract/interface\n @author The name of the author\n @notice Explain to an end user what this does\n @dev Explain to a developer any extra details"
+        },
+        "fullyImplemented": true,
+        "id": 1104,
+        "linearizedBaseContracts": [
+          1104
+        ],
+        "name": "EnglishAuction",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 1105,
+        "src": "223:32:2"
+      }
+    ],
+    "src": "0:255:2"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.6.12+commit.27d51765.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.3.2",
+  "updatedAt": "2021-04-13T16:09:10.796Z",
+  "devdoc": {
+    "author": "The name of the author",
+    "details": "Explain to a developer any extra details",
+    "kind": "dev",
+    "methods": {},
+    "title": "A title that should describe the contract/interface",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Explain to an end user what this does",
+    "version": 1
+  }
+}

@@ -101,9 +101,10 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
      */
     function transferFrom(address from, address to, uint256 tokenId) public virtual override {
         //limit first transfer must sale on artgee market
-        require(msg.sender == address(this)
-                || limitCount[tokenId]>1
-                || transferList[msg.sender],
+        require(from == address(this)
+                || limitCount[tokenId]>0
+                || transferList[from]
+                || transferList[to],
                 "Limit first transfer must sale on artgee market");
         super.transferFrom(from, to, tokenId);
         _removeTokenFromOwnerEnumeration(from, tokenId);
@@ -126,9 +127,10 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     }
 
     function _safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) internal {
-        require(msg.sender == address(this)
-                || limitCount[tokenId]>1
-                || transferList[msg.sender],
+        require(from == address(this)
+                || limitCount[tokenId]>0
+                || transferList[from]
+                || transferList[to],
                 "Limit first transfer must sale on artgee market");
         super.safeTransferFrom(from, to, tokenId, _data);
         _removeTokenFromOwnerEnumeration(from, tokenId);

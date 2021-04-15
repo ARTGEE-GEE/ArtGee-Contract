@@ -25,9 +25,9 @@
 
     测试网络：rinkeby(chainId:4)
     DigitalSource   存储artId相关信息（前端和后端调用用不到）
-    0x59A94a3CB7b022Fc3228Af22ED7497ede254ff25
+    0xfC28D139eE4eb3CCFDC3CACEe7959bD5eEBf26F2
     ArtGeeNft       铸造的nft 
-    0xb31E832570d906d7b57545EcD45B6B0Ace3657d4
+    0x662064f5B7A9eFAd3Cd27499d907214e6f78d65F
     abi： 📎ArtGeeNft.json 在 build/contracts/ArtGeeNft.json 文件中
 
 #### 后端数据日志
@@ -108,7 +108,7 @@
     1. 铸造合约方法
     createArt(
              address[] memory _assistants, //协作者，若无则填写: []
-             uint256[] memory _benefits, //分配比例：创建者+协作者，数据精度 4 即 10%为 100
+             uint256[] memory _benefits, //分配比例：创建者+协作者，数据精度 3 即 10%为 100, 2.5% 为 25
              uint256 _totalEdition, //总版次
             	string memory _uri, //metadata（唯一）
             	uint256 _count //铸造的数量

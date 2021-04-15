@@ -286,10 +286,10 @@ contract EnglishAuction is Operator{
     function bidderReverse(uint256 _auctionId) public{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(msg.sender == bidInfo.bidder, "Not bidder");
+        // if bidder wanner his coin, current time must over than `reverseTime`
         require(bidInfo.expirationTime.add(reverseTime) <= block.timestamp, "Not over reverse time");
         require(bidInfo.auctionStatus == 1, "Reverse not on bid");
         require(bidInfo.bidPrice < bidInfo.reservePrice,"Bid success");
-        // if bidder wanner his coin, current time must over than `reverseTime`
         //coin send to bidder
         transferMain(msg.sender, bidInfo.bidPrice);
         bidInfo.auctionStatus = 2;

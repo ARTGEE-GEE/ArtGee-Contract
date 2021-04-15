@@ -314,4 +314,6 @@ contract FixedAuction is Operator{
     function onERC721Received(address, address, uint256, bytes memory) public pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
+
+    receive () external payable {}
 }

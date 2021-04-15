@@ -25,9 +25,9 @@
 
     测试网络：rinkeby(chainId:4)
     DigitalSource   存储artId相关信息（前端和后端调用用不到）
-    0xfC28D139eE4eb3CCFDC3CACEe7959bD5eEBf26F2
+    0x685f882C19626aedbA3a9A3fa2c6704BD5ec0e65
     ArtGeeNft       铸造的nft （铸造使用此合约）
-    0x662064f5B7A9eFAd3Cd27499d907214e6f78d65F
+    0x092953003FAD455951e630EFCB310EAd21E25CDD
     abi： 📎ArtGeeNft.json 在 build/contracts/ArtGeeNft.json 文件中
 
 #### 后端数据日志
@@ -143,7 +143,7 @@
 ## 交易
 
 ### 英式拍：
-	EnglishAuction：0x1A73D28b3395905e746FFd6f5D98293b1Df775a5
+	EnglishAuction：0xc4fbc90a46553Fa0e7F5963b76Fa2b8E755E4a7a
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 	
 	在拍卖之前，需要调用nft的setApproveForAll()方法，授权
@@ -174,9 +174,7 @@
 	2. 重新上架
 		ReAuction(
 				uint256 indexed _auctionId, //拍卖id
-				address _token, //token
-                  		uint256 _tokenId, //tokenId
-                  		address _seller, //卖家(藏家)
+				uint256 _bidPrice, //退回价格，若有则退回，没有则为0
                     	uint256 _openingBid, //起拍价，精度为 1e18 
                     	uint256 _bidIncrements, //增长幅度（在上一次的叫价基础上）精度为 1e3
                     	uint256 _startTime, // 开始时间 时间戳，秒级
@@ -189,11 +187,13 @@
 			address _bidder, // 当前买家
                 	uint256 _bidPrice, // 当前叫价
                 	uint256 _bidCount, // 已拍卖次数
+                	uint256 _expirationTime, //结束时间，秒级
                 	uint32 _auctionStatus // 拍卖状态：1
                 	);
 	4. 卖家主动结算
 		Selling(
 				uint256 indexed _auctionId, //拍卖id
+				address _seller, //卖家
 				address _bidder,  // 成交人
 				uint256 _bidPrice, // 结算价
 				uint32 _auctionStatus // 拍卖状态：3
@@ -208,6 +208,7 @@
 	6. 买家结算
 		Withdraw(
 				uint256 indexed _auctionId, //拍卖id
+				address _seller, //卖家
 				address _bidder, // 成交人
 				uint256 _bidPrice, // 结算价
 				uint32 _auctionStatus // 拍卖状态：4
@@ -216,12 +217,9 @@
 		Cancel(
 				uint256 indexed _auctionId, //拍卖id
 				address _seller, // 卖家
-				address _token, 
-				uint256 _tokenId, 
 	                  uint256 _bidPrice, //退回价格，若没有需要退回则为0
 	                  uint32 _auctionStatus // 拍卖状态5
 	                  )
-	 
 
 
 #### 前端调用

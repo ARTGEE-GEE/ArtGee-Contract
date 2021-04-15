@@ -18,18 +18,16 @@ contract EnglishAuction is Operator{
                     uint256 _tokenId,address _seller, 
                     uint256 _openingBid,uint256 _bidIncrements,uint256 _startTime, uint256 _expirationTime,
                     uint32 _auctionStatus);
-    event ReAuction(uint256 indexed _auctionId, address _token, 
-                    uint256 _tokenId, address _seller, 
+    event ReAuction(uint256 indexed _auctionId,uint256 _bidPrice,
                     uint256 _openingBid, uint256 _bidIncrements, uint256 _startTime, uint256 _expirationTime,
                     uint32 _auctionStatus);
     event LastParam(uint256 _extendTime, uint256 _reverseTime);
     event Bid(uint256 indexed _auctionId, address _bidder,
-                uint256 _bidPrice, uint256 _bidCount,uint32 _auctionStatus);
-    event Selling(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
+                uint256 _bidPrice, uint256 _bidCount,uint256 _expirationTime,uint32 _auctionStatus);
+    event Selling(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
     event Reverse(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Withdraw(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Cancel(uint256 indexed _auctionId, address _seller, address _token, uint256 _tokenId, 
-                uint256 _bidPrice, uint32 _auctionStatus);
+    event Withdraw(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
+    event Cancel(uint256 indexed _auctionId, address _seller,uint256 _bidPrice, uint32 _auctionStatus);
 
     using Counters for Counters.Counter;
     Counters.Counter private _auctionIds;
@@ -141,8 +139,10 @@ contract EnglishAuction is Operator{
         require(block.timestamp > bidInfo.expirationTime, "Auction not over");
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         //bidder has already reverse
+        uint256 refund = 0;
         if(bidInfo.auctionStatus == 1){
             //sende coin to bidder
+            refund = bidInfo.bidPrice;
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
             // remove bidder's auctionId
             _removeMyAuction(bidInfo.bidder, _auctionId);
@@ -158,7 +158,7 @@ contract EnglishAuction is Operator{
         bidInfo.auctionStatus = 0;
         bidInfo.bidCount = 0;
         bidInfo.bidder = address(0);        
-        emit ReAuction(_auctionId, bidInfo.token, bidInfo.tokenId, msg.sender, 
+        emit ReAuction(_auctionId, refund,
                         _openingBid, _bidIncrements, _startTime,_expirationTime,0);
     }
 
@@ -193,7 +193,7 @@ contract EnglishAuction is Operator{
         //add bid count
         bidInfo.auctionStatus = 1;
         bidInfo.bidCount = bidInfo.bidCount.add(1);
-        emit Bid(_auctionId, msg.sender, nowBidPrice, bidInfo.bidCount, 1);
+        emit Bid(_auctionId, msg.sender, nowBidPrice, bidInfo.bidCount,bidInfo.expirationTime, 1);
     }
     
     function getCurrentPrice(uint256 _auctionId) view public returns(uint256 _nowBidPrice){
@@ -228,7 +228,7 @@ contract EnglishAuction is Operator{
         IERC721 ierc721 = IERC721(bidInfo.token);
         ierc721.safeTransferFrom(address(this),msg.sender, bidInfo.tokenId);
         bidInfo.auctionStatus = 5;
-        emit Cancel(_auctionId, bidInfo.seller, bidInfo.token, bidInfo.tokenId, refund, 5);
+        emit Cancel(_auctionId, bidInfo.seller, refund, 5);
     }
 
     //seller executor
@@ -279,7 +279,7 @@ contract EnglishAuction is Operator{
         _removeMyAuction(bidInfo.bidder, _auctionId);
         // to seller
         transferMain(bidInfo.seller, amount.sub(_fee).sub(_artistFee));
-        emit Selling(_auctionId,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),3);
+        emit Selling(_auctionId,bidInfo.seller,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),3);
     }
 
     //bidder execute
@@ -346,7 +346,7 @@ contract EnglishAuction is Operator{
         _removeMyAuction(bidInfo.seller, _auctionId);
         //remove bidder list
         _removeMyAuction(bidInfo.bidder, _auctionId);
-        emit Withdraw(_auctionId,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),4);
+        emit Withdraw(_auctionId,bidInfo.seller,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),4);
     }
 
     function _addMyAuction(address _owner,uint256 _auctionId) internal{

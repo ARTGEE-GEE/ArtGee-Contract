@@ -39,6 +39,8 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         uint256 totalEdition;
     }
 
+    uint32 public mTotalEdition = 100;
+
      // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
 
@@ -81,6 +83,10 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
 
     function removeBlackList(address _black) public onlyOwner(){
         blackList[_black] = false;
+    }
+
+    function SetMTotalEdition(uint32 _mTotalEdition) public onlyOwner(){
+        mTotalEdition = _mTotalEdition;
     }
 
     function addTransferList(address _transferAddr) public onlyOwner(){
@@ -159,8 +165,13 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         require(!blackList[msg.sender],"Creator is forbidden");
         if(_assistants.length>0){
             require(_assistants.length + 1 == _benefits.length,"Benefits length error");
+            uint256 _totalPercent = 0;
+            for (uint256 index = 0; index < _benefits.length; index++) {
+                _totalPercent = _totalPercent.add(_benefits[index]);
+            }
+            require(_totalPercent == 1000,"Benefits error");
         }
-        require(_count <= 50,"Count overflow");
+        require(_count <= mTotalEdition,"Count overflow");
         //create art id
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,

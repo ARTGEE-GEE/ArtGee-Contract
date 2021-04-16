@@ -142,19 +142,27 @@
    
 ## 交易
 
-### 英式拍：
-	EnglishAuction：0xc4fbc90a46553Fa0e7F5963b76Fa2b8E755E4a7a
-	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
+拍卖状态： 
+0 初始状态; 1 拍卖; 2 买家退款; 3 卖家结算; 4 买家结算；5 卖家取消
+
+	在拍卖之前，前端需要调用nft的setApproveForAll()方法，授权
 	
-	在拍卖之前，需要调用nft的setApproveForAll()方法，授权
-	
-	授权：
+	授权：send()方法
 	setApprovalForAll(
-					address operator //英式拍合约: 0x1A73D28b3395905e746FFd6f5D98293b1Df775a5
+					address operator //交易合约: 如：0x1A73D28b3395905e746FFd6f5D98293b1Df775a5
 					bool _approved //true
+					)
+	获取授权状态：call()方法
+	isApprovedForAll(
+					address owner //自己的地址
+					address operator //交易合约
 					)
 
 
+### 英式拍：
+	EnglishAuction: 0x14872823DC81564A5b7fB1aF1c983eb6c792d222
+	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
+	
 #### 后端日志
 
 	含有 indexed 的数据在topic中解析
@@ -330,7 +338,7 @@
 
 >
 		
-	3. 获取“我的”拍卖列表
+	3. 获取“我的”拍卖列表，如：可撤销、可退款、可结算，已结算、已撤销、重新上架的不保存
 		getMyArtList(
 					address _owner // 地址
 					)
@@ -341,8 +349,197 @@
 		
 	4. 获取所有的拍卖列表（包括已完成的等）
 		getArtList()
+		返回值：
+		uint256[] 如:  [1,2,3,4,5,6]
+	5. 获取买家可退款的延期时间
+		reverseTime()
+		返回值：
+		432000 //秒级
+	6. 	获取叫价的超时时间，如叫价时间到结束时间不足15min则，增加15min
+		extendTime()
+		返回值：
+		900 //秒级
+
+---
+
+### 一口价:
+	FixedAuction：0xa35635D2B9f183a7E6c9826eE99BA2fBC8fE546d
+	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
+#### 后端日志
+
+	1. 上架拍卖
+		Auction(uint256 indexed _auctionId, //拍卖id
+				address _token, //token
+	                  uint256 _tokenId, //tokenId
+	                  address _seller,  //卖家(藏家)
+	                  uint256 _openingBid, //起拍价，精度为 1e18 
+	                  uint256 _fixedPrice, //一口价，精度1e18
+	                  uint32 _auctionStatus // 上架状态：0
+	                  );
+	                    
+	 2. 重新上架
+	 	ReAuction(uint256 indexed _auctionId, //拍卖id
+	                    uint256 _openingBid,  //起拍价，精度为 1e18 
+	                    uint256 _fixedPrice,  //一口价，精度1e18 
+	                    uint32 _auctionStatus // 上架状态：0
+	                    );
+	                    
+	 3.  拍卖 
+	 	Bid(uint256 indexed _auctionId, //拍卖id
+	 		address _bidder, //买家
+	            uint256 _bidPrice, //叫价，精度为 1e18 
+	            uint256 _bidCount, //当前次数
+	            uint256 _startTime, //开始时间
+	            uint256 _expirationTime,//超时时间
+	            uint32 _auctionStatus //拍卖状态：1
+	            );
+	            
+	  4. 卖家主动结算
+	  	 Selling(uint256 indexed _auctionId, //拍卖id
+	  	 		address _bidder, //买家
+	  	 		uint256 _bidPrice, //结算价格
+	  	 		uint32 _auctionStatus // 拍卖状态：3
+	  	 		);
+	  	 		
+	  5. 买家退款
+	  	Reverse(uint256 indexed _auctionId, //拍卖id
+	  			address _bidder, //买家
+	  			uint256 _bidPrice, //退款价格
+	  			uint32 _auctionStatus // 拍卖状态：2
+	  			);
+	  			
+	  6. 买家结算(一口价)
+	  	Fixed(uint256 indexed _auctionId, //拍卖id
+			address _bidder, //买家
+			uint256 _bidPrice, //结算价格 去除手续费
+			uint32 _auctionStatus // 拍卖状态：4
+			);
+			
+	   7.  卖家（藏家）取消
+	   	Cancel(uint256 indexed _auctionId, //拍卖id
+			address _seller, //卖家
+			uint256 _bidPrice,  //退回价格，若没有需要退回则为0
+			uint32 _auctionStatus  // 拍卖状态5
+			);	
+   
+#### 前端调用
+
+##### send方法
+	
+	1. 上架拍卖
+		auction(address _token,  //token
+				uint256 _tokenId,  //tokenId
+	                  uint256 _openingBid, //起始价
+	                  uint256 _fixedPrice //一口价
+	                  )
+            	传 send： 
+            from  //当前签名地址
+           
+ >
+	
+	2. 重新上架
+		reAuction(uint256 _auctionId, //拍卖id
+				uint256 _openingBid, //起始价
+                    	uint256 _fixedPrice //一口价
+                    	) 
+            传 send： 
+            from  //当前签名地址
+
+>	
+	
+	3. 叫价拍卖
+		bid(
+			uint256 _auctionId //拍卖id
+			) 
+		传 send： 
+		from  //当前签名地址
+	 	value //当前价格 精度1e18（只要大于上一笔价格，小于一口价即可）
+>
+            
+	4. 卖家取消拍卖
+		cancel(uint256 _auctionId //拍卖id
+				)
+	5. 卖家结算
+		sellingSettlementPrice(uint256 _auctionId ////拍卖id)
+		传 send： 
+		from  //当前签名地址
+		
+	6. 买家退款（当超过结束时间加上规定的延期时间）
+		bidderReverse(uint256 _auctionId)
+		传 send： 
+		from  //当前签名地址
+		
+	7. 买家一口价
+		fixedWithdraw(uint256 _auctionId)
+		
+		传 send： 
+		from  //当前签名地址
+ 		value //一口价价格 精度1e18
+	
+#### call 方法
+
+	1. 根据 _auctionId 获取拍卖详情
+		bidInfos(
+				uint256 _auctionId //拍卖id
+				)
+		返回值：
+		address: token //如：0x662064f5B7A9eFAd3Cd27499d907214e6f78d65F
+		uint256: tokenId  //如：8
+		address: seller //卖家（藏家）如：0xDe773dF2FB2830104718b7c04c2d52a1C0AC8DD7
+		address: bidder //当前买家 如：0xF00079382099f609DbC37F5A7EA04F14D4eAD67C
+		uint256: openingBid //起拍价 精度1e18 如：10000000000000000
+		uint256: fixedPrice //一口价 精度1e18 如：16000000000000000
+		uint256: bidPrice //当前叫价 精度1e18 如：12100000000000000
+		uint256: bidCount //已叫次数 如：3
+		uint256: startTime //开始时间 时间戳秒级 如：1618489901
+		uint256: auctionStatus //拍卖状态： 0 初始状态; 1 拍卖; 2 买家退款;3 卖家结算; 4 买家结算；5 卖家取消
+		uint256: expirationTime //结束时间 时间戳秒级 如：1618491150
+
+	>
+	
+	2. 获取拍卖的当前价格
+		getCurrentPrice(
+						uint256 _auctionId //拍卖id
+						)
+		返回值：
+		uint256: _nowBidPrice 当前价格 精度1e18： 12100000000000000
+
+>
+		
+	3. 获取“我的”拍卖列表，只保留可执行的，如：可撤销、可退款、可结算，已结算、已撤销、重新上架的不保存
+		getMyArtList(
+					address _owner // 地址
+					)
+		返回值：
 		uint256[] 如:  [1,2,3,4,5,6]
 
+>		
+		
+	4. 获取所有的拍卖列表（包括已完成的等）
+		getArtList()
+		返回值：
+		uint256[] 如:  [1,2,3,4,5,6]
+
+>
+
+	5. 获取买家可退款的延期时间
+		reverseTime()
+		返回值：
+		432000 //秒级
+
+>		
+		
+	6. 	获取叫价的超时时间，如叫价时间到结束时间不足15min则，增加15min
+		extendTime()
+		返回值：
+		900 //秒级
+
+>
 	
-   
-   
+	7. 获取开启拍卖后的延期时间 如：上架后开拍后24小时结束
+		limitTime
+
+
+
+
+

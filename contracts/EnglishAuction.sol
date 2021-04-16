@@ -104,6 +104,7 @@ contract EnglishAuction is Operator{
                     uint256 _reservePrice, uint256 _startTime,uint256 _expirationTime
                      ) public{
         require(_expirationTime >= block.timestamp && _expirationTime > _startTime,"Time error");
+        require(_reservePrice >= _openingBid, "Price error");
         _auctionIds.increment();
         uint256 auctionId = _auctionIds.current();
         BidInfo storage bidInfo = bidInfos[auctionId];
@@ -111,7 +112,7 @@ contract EnglishAuction is Operator{
         bidInfo.tokenId = _tokenId;
         bidInfo.seller = msg.sender;
         bidInfo.openingBid = _openingBid;
-        bidInfo.bidPrice = _openingBid;
+        bidInfo.bidPrice = 0;
         bidInfo.reservePrice = _reservePrice;
         bidInfo.bidder = address(0);        
         bidInfo.bidCount = 0;
@@ -134,6 +135,7 @@ contract EnglishAuction is Operator{
     function reAuction(uint256 _auctionId, 
                         uint256 _openingBid, uint256 _bidIncrements,
                         uint256 _reservePrice, uint256 _startTime, uint256 _expirationTime) public{
+        require(_reservePrice >= _openingBid, "Price error");
         BidInfo storage bidInfo = bidInfos[_auctionId];
         //must wait for auction over
         require(block.timestamp > bidInfo.expirationTime, "Auction not over");
@@ -149,7 +151,7 @@ contract EnglishAuction is Operator{
         }
         bidInfo.seller = msg.sender;
         bidInfo.openingBid = _openingBid;
-        bidInfo.bidPrice = _openingBid;
+        bidInfo.bidPrice = 0;
         bidInfo.reservePrice = _reservePrice;
         bidInfo.bidIncrements = _bidIncrements;
         bidInfo.startTime = _startTime;
@@ -175,6 +177,8 @@ contract EnglishAuction is Operator{
         if(bidInfo.bidCount!=0){
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
             nowBidPrice = bidInfo.bidPrice.mul(bidInfo.bidIncrements.add(basePercent)).div(basePercent);
+        }else{
+            nowBidPrice = bidInfo.openingBid;
         }
         require(msg.value == nowBidPrice, "Value error");
         //update price
@@ -208,17 +212,16 @@ contract EnglishAuction is Operator{
     //sell cancel
     function cancel(uint256 _auctionId) public{
         BidInfo storage bidInfo = bidInfos[_auctionId];
-        require(bidInfo.seller == msg.sender,"Not auction id seller");
-        // must end
-        require(bidInfo.expirationTime < block.timestamp, "On auction");
+        require(bidInfo.seller == msg.sender,"Not auction id seller");    
         require(bidInfo.bidPrice < bidInfo.reservePrice,"Bid success");
-        require(bidInfo.auctionStatus == 0 || bidInfo.auctionStatus == 1, "Has bid");
+        require(bidInfo.auctionStatus == 0 || bidInfo.auctionStatus == 1, "Auction over");
         if(bidInfo.bidder != address(0)){
             //remove bidder list
             _removeMyAuction(bidInfo.bidder, _auctionId);
         }
         uint256 refund = 0;
         if(bidInfo.auctionStatus == 1){
+            require(bidInfo.expirationTime < block.timestamp, "On auction");
             refund = bidInfo.bidPrice;
             //has bid send coin to bidder
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
@@ -241,45 +244,8 @@ contract EnglishAuction is Operator{
         uint256 amount = bidInfo.bidPrice;
         require(amount >= bidInfo.reservePrice,"Not over reserve price");
         //721 transfer current bidder , get bidder price
-        IERC721 ierc721 = IERC721(bidInfo.token);
-        ierc721.safeTransferFrom(address(this), bidInfo.bidder, bidInfo.tokenId);
-        //fee to platform
-        uint256 _fee = amount.mul(feePercent).div(basePercent);
-        uint256 _artistFee = 0; 
-        transferMain(platform,_fee);
-        //artist share in the benefit 
-        if(address(artGee) == bidInfo.token){
-            (uint256 artId,,)=artGee.tokenArts(bidInfo.tokenId);
-            (,,,address creator,
-                address[] memory assistants,
-                uint256[] memory benefits,)=artGee.getSourceDigitalArt(artId);
-            bool isNotFirst = isNotFirstAuction[bidInfo.token][bidInfo.tokenId];
-            //first time 20% to artist,other time 10% 
-            _artistFee = amount.mul(isNotFirst ? artPercent[1]:artPercent[0]).div(basePercent);
-            if(assistants.length == 0){
-                //send to creator
-                transferMain(creator,_artistFee);
-            }else{
-                //send to creator and other assistant
-                for (uint256 index = 0; index < benefits.length; index++) {
-                    if(index==0){
-                        // to creator
-                        transferMain(creator,_artistFee.mul(benefits[index]).div(basePercent));
-                    }else{
-                        // to assistants
-                        transferMain(assistants[index-1],_artistFee.mul(benefits[index]).div(basePercent));
-                    }
-                }
-            }
-            isNotFirstAuction[bidInfo.token][bidInfo.tokenId] = true;
-        }
-        //remove seller list
-        _removeMyAuction(bidInfo.seller, _auctionId);
-        //remove bidder list
-        _removeMyAuction(bidInfo.bidder, _auctionId);
-        // to seller
-        transferMain(bidInfo.seller, amount.sub(_fee).sub(_artistFee));
-        emit Selling(_auctionId,bidInfo.seller,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),3);
+        uint256 am = _share(_auctionId, bidInfo, amount);
+        emit Selling(_auctionId,bidInfo.seller,bidInfo.bidder,am,3);
     }
 
     //bidder execute
@@ -308,6 +274,12 @@ contract EnglishAuction is Operator{
         require(amount >= bidInfo.reservePrice,"Not over reserve price");
         bidInfo.auctionStatus = 4;
         //721 transfer current bidder , get bidder price
+        uint256 am = _share(_auctionId, bidInfo, amount);
+        emit Withdraw(_auctionId,bidInfo.seller,bidInfo.bidder,am,4);
+    }
+
+    function _share(uint256 _auctionId, BidInfo storage bidInfo,uint256 _price) internal returns(uint256 _amount){
+        uint256 amount = _price;
         IERC721 ierc721 = IERC721(bidInfo.token);
         ierc721.safeTransferFrom(address(this), bidInfo.bidder, bidInfo.tokenId);
         //fee to platform
@@ -346,7 +318,7 @@ contract EnglishAuction is Operator{
         _removeMyAuction(bidInfo.seller, _auctionId);
         //remove bidder list
         _removeMyAuction(bidInfo.bidder, _auctionId);
-        emit Withdraw(_auctionId,bidInfo.seller,bidInfo.bidder,amount.sub(_fee).sub(_artistFee),4);
+        return amount.sub(_fee).sub(_artistFee);
     }
 
     function _addMyAuction(address _owner,uint256 _auctionId) internal{

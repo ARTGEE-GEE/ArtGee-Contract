@@ -1,17 +1,17 @@
 pragma solidity ^0.6.2;
 
-import "./owner/Operator.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./interfaces/IAgERC721.sol";
+import './base/BaseAuction.sol';
 
 /// @title fixed auction
 /// @author yzbbanban
 /// @notice buy token
 /// @dev 
-contract FixedAuction is Operator{
+contract FixedAuction is BaseAuction {
     event Auction(uint256 indexed _auctionId, address _token, 
                     uint256 _tokenId, address _seller, 
                     uint256 _openingBid, uint256 _fixedPrice,uint32 _auctionStatus);
@@ -34,20 +34,6 @@ contract FixedAuction is Operator{
     uint256 public extendTime = 15 minutes;
     uint256 public reverseTime = 5 days;
     
-    uint256 public feePercent = 100; //10%
-    uint256[] public artPercent = [200,100]; //first 20%; other time 10%
-    uint256 public basePercent = 1000;
-    address public platform;
-    mapping(address => mapping(uint256 => bool)) public isNotFirstAuction;
-    //my bids 
-    mapping(address => uint256[]) myBidInfos;
-    //my => auction id => index
-    mapping(address => mapping(uint256 => uint256)) myBidInfoIndex;
-
-    IAgERC721 artGee;
-
-    uint256[] public artList;
-
     constructor(IAgERC721 _artGee, address _platform) public{
         artGee = _artGee;
         platform = _platform;
@@ -66,14 +52,6 @@ contract FixedAuction is Operator{
         uint32 auctionStatus;// 0 init; 1 bid; 2 bidder reverse;3 seller finish; 4 bidder finish 5 seller cancel
         uint256 expirationTime;//change
     }
-    
-    function getMyArtList(address _owner) view public returns(uint256[] memory){
-        return myBidInfos[_owner];
-    }
-
-    function getArtList() view public returns(uint256[] memory _artList){
-        return artList;
-    }
 
     function setReverseTime(uint256 _limitTime,uint256 _extendTime, uint256 _reverseTime) public onlyOwner(){
         emit LastParam(limitTime, extendTime, reverseTime);
@@ -88,11 +66,6 @@ contract FixedAuction is Operator{
         }
     }
 
-    function setArtgee(IAgERC721 _artGee,address _platform) public onlyOwner(){
-        artGee = _artGee;
-        platform = _platform;
-    }
-
     function auction(address _token, uint256 _tokenId, 
                     uint256 _openingBid,
                     uint256 _fixedPrice) public{
@@ -104,13 +77,8 @@ contract FixedAuction is Operator{
         bidInfo.tokenId = _tokenId;
         bidInfo.seller = msg.sender;
         bidInfo.openingBid = _openingBid;
-        bidInfo.bidPrice = 0;
         bidInfo.fixedPrice = _fixedPrice;
-        bidInfo.bidder = address(0);        
-        bidInfo.bidCount = 0;
-        bidInfo.startTime = 0;
-        bidInfo.expirationTime = 0;
-        bidInfo.auctionStatus = 0;
+         _initAuction(bidInfo);
         //add tokenId
         IERC721 ierc721 = IERC721(_token);
         ierc721.safeTransferFrom(msg.sender, address(this), _tokenId);
@@ -122,7 +90,10 @@ contract FixedAuction is Operator{
 
     function reAuction(uint256 _auctionId, uint256 _openingBid, 
                     uint256 _fixedPrice) public{
+        require(_openingBid < _fixedPrice,"Opening bid price must lower than fixedPrice");
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
+        require(bidInfo.auctionStatus != 5,"Seller has been canceled");
         //must wait for auction over
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         require(block.timestamp > bidInfo.expirationTime, "Auction not over");
@@ -135,18 +106,14 @@ contract FixedAuction is Operator{
         }
         bidInfo.seller = msg.sender;
         bidInfo.openingBid = _openingBid;
-        bidInfo.bidPrice = 0;
         bidInfo.fixedPrice = _fixedPrice;
-        bidInfo.bidder = address(0);        
-        bidInfo.startTime = 0;
-        bidInfo.expirationTime = 0;
-        bidInfo.auctionStatus = 0;
-        bidInfo.bidCount = 0;
+        _initAuction(bidInfo);
         emit ReAuction(_auctionId, _openingBid, _fixedPrice, 0);
     }
 
     function bid(uint256 _auctionId) payable public{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(block.timestamp >= bidInfo.startTime,"Auction not start");
         //now time > expiration time then auction over
         require(bidInfo.auctionStatus == 0 || bidInfo.auctionStatus == 1, "Not on auction");
         require(msg.sender != bidInfo.seller, "Seller can not bid");
@@ -194,9 +161,10 @@ contract FixedAuction is Operator{
     function cancel(uint256 _auctionId) public{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.seller == msg.sender,"Not auction id seller");
-        require(bidInfo.auctionStatus == 0 || bidInfo.auctionStatus == 1, "Has bid");
+        uint32 nowStatus = bidInfo.auctionStatus;
+        require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction over");
         uint256 refund = 0;
-        if(bidInfo.auctionStatus == 1){
+        if(nowStatus == 1){
             // must end
             require(bidInfo.expirationTime < block.timestamp, "On auction");
             refund = bidInfo.bidPrice;
@@ -228,7 +196,7 @@ contract FixedAuction is Operator{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(msg.sender == bidInfo.bidder, "Not bidder");
         // if bidder wanner his coin, current time must over than `reverseTime`
-        require(bidInfo.auctionStatus == 1, "Reverse not on bid");
+        require(bidInfo.auctionStatus == 1, "Reverse can not on bid");
         require(bidInfo.expirationTime.add(reverseTime) <= block.timestamp, "Not over reverse time");
         //coin send to bidder
         transferMain(msg.sender, bidInfo.bidPrice);
@@ -294,35 +262,12 @@ contract FixedAuction is Operator{
         return amount.sub(_fee).sub(_artistFee);
     }
 
-    function _addMyAuction(address _owner,uint256 _auctionId) internal{
-        myBidInfoIndex[_owner][_auctionId] = myBidInfos[_owner].length;
-        myBidInfos[_owner].push(_auctionId);
+    function _initAuction(BidInfo storage bidInfo) internal {
+        bidInfo.bidPrice = 0;
+        bidInfo.bidder = address(0);        
+        bidInfo.bidCount = 0;
+        bidInfo.startTime = 0;
+        bidInfo.expirationTime = 0;
+        bidInfo.auctionStatus = 0; 
     }
-
-    function _removeMyAuction(address _owner, uint256 _auctionId) internal{
-        uint256 lastIndex = myBidInfos[_owner].length.sub(1);
-        uint256 currentIndex = myBidInfoIndex[_owner][_auctionId];
-        if(lastIndex != currentIndex){
-            uint256 lastAuctionId = myBidInfos[_owner][lastIndex];
-            myBidInfos[_owner][currentIndex] = lastAuctionId;
-            myBidInfoIndex[_owner][lastAuctionId] = currentIndex;
-        }
-        myBidInfos[_owner].pop();
-    }
-
-    function transferMain(address _address, uint256 _value) internal{
-        (bool res, ) = address(uint160(_address)).call{value:_value}("");
-        require(res,"TRANSFER ETH ERROR");
-    }
-
-    /**
-     * @dev See {IERC721Receiver-onERC721Received}.
-     *
-     * Always returns `IERC721Receiver.onERC721Received.selector`.
-     */
-    function onERC721Received(address, address, uint256, bytes memory) public pure returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
-
-    receive () external payable {}
 }

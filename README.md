@@ -110,7 +110,13 @@
     "totalEdition": "10",//总版次
     "uri": "QmTiPcSaJmjB6ZEBWYQMm7keEHQXVm9XsBeeeSRUrft3qB" //metadata（唯一）
     }
- 
+	
+	4. 获取是否可以自由交易（必须在一口价或英式拍买卖过才可以）
+	limitCount(
+				uint256 _tokenId //tokenId
+			)
+	返回值：0 不可以；1可以交易
+
 ##### send方法
     
     1. 铸造合约方法
@@ -160,8 +166,15 @@
 
 
 ### 英式拍：
-	EnglishAuction: 0x14872823DC81564A5b7fB1aF1c983eb6c792d222
+	EnglishAuction: 0x25E600555E23FB4bA8C3bB0D23585a682423D0Bd
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
+
+	可配置参数：
+	1. artgee nft合约（用于给 artgee 平台的nft分润）、平台合约（收取平台手续费）
+	2. 拍卖首次销售和二次销售的百分比
+	3. 时间参数：
+		低于 15min 补偿15min 的时间参数；
+		拍卖最终低于保留价，用户可退回资金的时间 5天后的时间参数；
 	
 #### 后端日志
 

@@ -1,0 +1,113 @@
+{
+  "contractName": "ShareBenifits",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.6.12+commit.27d51765\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/ShareBenifits.sol\":\"ShareBenifits\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/ShareBenifits.sol\":{\"keccak256\":\"0xd4fde2dca50fa2c47d102a94e00d0e13df6a960f783c0981d9bf0456bcaf3828\",\"urls\":[\"bzz-raw://e733bee9a61bc68d9977a371187cfc788f3f15bc949adb5fe489b8597229333e\",\"dweb:/ipfs/QmW6Fh6KVkBNjVXE5K9TcaPrZ5hM7tPkZ2bYS8ja23xwqR\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220e39139a1610a2c16c6189e4be6f64f22e934889ba8a21abb78dbaf4a6b4e921964736f6c634300060c0033",
+  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220e39139a1610a2c16c6189e4be6f64f22e934889ba8a21abb78dbaf4a6b4e921964736f6c634300060c0033",
+  "immutableReferences": {},
+  "sourceMap": "25:30:5:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "25:30:5:-:0;;;;;",
+  "source": "pragma solidity ^0.6.2;\n\ncontract ShareBenifits{\n    \n}",
+  "sourcePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/ShareBenifits.sol",
+  "ast": {
+    "absolutePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/ShareBenifits.sol",
+    "exportedSymbols": {
+      "ShareBenifits": [
+        4173
+      ]
+    },
+    "id": 4174,
+    "license": null,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4172,
+        "literals": [
+          "solidity",
+          "^",
+          "0.6",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 4173,
+        "linearizedBaseContracts": [
+          4173
+        ],
+        "name": "ShareBenifits",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 4174,
+        "src": "25:30:5"
+      }
+    ],
+    "src": "0:55:5"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract/contracts/ShareBenifits.sol",
+    "exportedSymbols": {
+      "ShareBenifits": [
+        4173
+      ]
+    },
+    "id": 4174,
+    "license": null,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 4172,
+        "literals": [
+          "solidity",
+          "^",
+          "0.6",
+          ".2"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 4173,
+        "linearizedBaseContracts": [
+          4173
+        ],
+        "name": "ShareBenifits",
+        "nodeType": "ContractDefinition",
+        "nodes": [],
+        "scope": 4174,
+        "src": "25:30:5"
+      }
+    ],
+    "src": "0:55:5"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.6.12+commit.27d51765.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.3.2",
+  "updatedAt": "2021-04-17T10:26:45.562Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

@@ -102,14 +102,14 @@ contract EnglishAuction is BaseAuction{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(bidInfo.auctionStatus != 5,"Seller has been canceled");
-        //must wait for auction over
-        require(block.timestamp > bidInfo.expirationTime, "Auction not over");
         //bid price must < reverse price
         require(bidInfo.bidPrice < bidInfo.reservePrice,"Bid success");
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         //bidder has already reverse
         uint256 refund = 0;
         if(bidInfo.auctionStatus == 1){
+            //must wait for auction over
+            require(block.timestamp > bidInfo.expirationTime, "Auction not over");
             //sende coin to bidder
             refund = bidInfo.bidPrice;
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
@@ -183,7 +183,7 @@ contract EnglishAuction is BaseAuction{
         require(bidInfo.bidPrice < bidInfo.reservePrice,"Bid success");
         //init ,has bidded, bidder has reverse
         uint32 nowStatus = bidInfo.auctionStatus;
-        require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction over");
+        require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction cancel or success");
         uint256 refund = 0;
         if(nowStatus == 1){
             require(bidInfo.expirationTime < block.timestamp, "On auction");
@@ -223,7 +223,7 @@ contract EnglishAuction is BaseAuction{
         require(msg.sender == bidInfo.bidder, "Not bidder");
         require(bidInfo.bidPrice < bidInfo.reservePrice,"Bid success");
         // if bidder wanner his coin, current time must over than `reverseTime`
-        require(bidInfo.auctionStatus == 1, "Reverse can not on bid");
+        require(bidInfo.auctionStatus == 1, "Reverse must on bid");
         require(bidInfo.expirationTime.add(reverseTime) <= block.timestamp, "Not over reverse time");
         //coin send to bidder
         transferMain(msg.sender, bidInfo.bidPrice);

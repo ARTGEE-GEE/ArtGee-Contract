@@ -93,12 +93,14 @@ contract FixedAuction is BaseAuction {
         require(_openingBid < _fixedPrice,"Opening bid price must lower than fixedPrice");
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
-        require(bidInfo.auctionStatus != 5,"Seller has been canceled");
+        uint32 nowStatus = bidInfo.auctionStatus;
+        require(nowStatus != 5,"Seller has been canceled");
+        require(nowStatus != 3 || nowStatus != 4,"Auction success");
         //must wait for auction over
         require(bidInfo.seller == msg.sender,"Not auction id seller");
-        require(block.timestamp > bidInfo.expirationTime, "Auction not over");
         //bidder has already reverse
-        if(bidInfo.auctionStatus == 1){
+        if(nowStatus == 1){
+            require(block.timestamp > bidInfo.expirationTime, "Auction not over");
             //sende coin to bidder
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
             //remove bidder's auctionId
@@ -162,7 +164,7 @@ contract FixedAuction is BaseAuction {
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         uint32 nowStatus = bidInfo.auctionStatus;
-        require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction over");
+        require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction cancel or success");
         uint256 refund = 0;
         if(nowStatus == 1){
             // must end
@@ -196,7 +198,7 @@ contract FixedAuction is BaseAuction {
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(msg.sender == bidInfo.bidder, "Not bidder");
         // if bidder wanner his coin, current time must over than `reverseTime`
-        require(bidInfo.auctionStatus == 1, "Reverse can not on bid");
+        require(bidInfo.auctionStatus == 1, "Reverse must on bid");
         require(bidInfo.expirationTime.add(reverseTime) <= block.timestamp, "Not over reverse time");
         //coin send to bidder
         transferMain(msg.sender, bidInfo.bidPrice);
@@ -212,8 +214,13 @@ contract FixedAuction is BaseAuction {
         if(bidInfo.bidCount != 0){
             require(bidInfo.expirationTime >= block.timestamp, "Not on auction");
         }
+        if(bidInfo.auctionStatus == 1){
+            //send to last bidder
+            transferMain(bidInfo.bidder, bidInfo.bidPrice);
+        }
         require(bidInfo.fixedPrice == msg.value,"Not fixed price");
         bidInfo.auctionStatus = 4;
+        bidInfo.bidPrice = bidInfo.fixedPrice;
         uint256 amount = _share(_auctionId,bidInfo,bidInfo.fixedPrice);
         // to seller
         bidInfo.bidder = msg.sender;

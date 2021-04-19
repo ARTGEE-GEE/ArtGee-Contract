@@ -7,6 +7,30 @@
 
     truffle migration --network {network} (--reset)
 
+### metadate字段
+	name			: a
+	image			: ipfs://ipfs/Qma1V7privmJssVXEEVAL6B43km5p9aszH5cYhcmHLoFFW	（预览图）
+	decription		: This is an a
+	attributes
+		trait_type 	:	Artist
+		value		:	A
+	properties
+		preview_file 			(预览图)
+			type			:	string
+			description		:	ipfs://ipfs/Qma1V7privmJssVXEEVAL6B43km5p9aszH5cYhcmHLoFFW
+		preview_file_type:
+			type			:	mimeType
+			description		:	image/jpg
+		created_time
+			type			:	datetime
+			description		:	2021-01-01T11:11:11.111111+00:00
+		total_edition
+			type			:	int
+			description 	:	10
+		preview_file2:			(全文件有视频则是视频)		
+			type			:	mimeType
+			description		:	video/mp4
+		
 
 ## 铸造功能：
 
@@ -166,12 +190,12 @@
 
 
 ### 英式拍：
-	EnglishAuction: 0x25E600555E23FB4bA8C3bB0D23585a682423D0Bd
+	EnglishAuction: 0xcF3a245ea80284BBA45D5713c334A2eC84a0ad5B
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：
 	1. artgee nft合约（用于给 artgee 平台的nft分润）、平台合约（收取平台手续费）
-	2. 拍卖首次销售和二次销售的百分比
+	2. 拍卖首次销售和二次销售的百分比，平台收取的手续费
 	3. 时间参数：
 		低于 15min 补偿15min 的时间参数；
 		拍卖最终低于保留价，用户可退回资金的时间 5天后的时间参数；
@@ -376,8 +400,17 @@
 ---
 
 ### 一口价:
-	FixedAuction：0xa35635D2B9f183a7E6c9826eE99BA2fBC8fE546d
+	FixedAuction: 0xE02CaaCdEa871F0F751A885FE02dba76Ba04fA33
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
+
+	可配置参数：
+	1. artgee nft合约（用于给 artgee 平台的nft分润）、平台合约（收取平台手续费）
+	2. 拍卖首次销售和二次销售的百分比，平台收取的手续费
+	3. 时间参数：
+		结束时间：当有第一个人叫价后，24h结束的时间参数；
+		低于 15min 补偿15min 的时间参数；
+		拍卖最终低于保留价，用户可退回资金的时间 5天后的时间参数；
+
 #### 后端日志
 
 	1. 上架拍卖

@@ -9,7 +9,7 @@
 
 ### metadate字段
 	name			: a
-	image			: ipfs://ipfs/Qma1V7privmJssVXEEVAL6B43km5p9aszH5cYhcmHLoFFW	（预览图）
+	image			: ipfs://ipfs/Qmassss	（预览图）
 	decription		: This is an a
 	attributes
 		trait_type 	:	Artist
@@ -17,8 +17,8 @@
 	properties
 		preview_file 			(预览图)
 			type			:	string
-			description		:	ipfs://ipfs/Qma1V7privmJssVXEEVAL6B43km5p9aszH5cYhcmHLoFFW
-		preview_file_type:
+			description		:	ipfs://ipfs/Qmassss
+		preview_file_type
 			type			:	mimeType
 			description		:	image/jpg
 		created_time
@@ -27,7 +27,10 @@
 		total_edition
 			type			:	int
 			description 	:	10
-		preview_file2:			(全文件有视频则是视频)		
+		preview_file2:			(全文件有视频则是视频)
+			type			:	string
+			description		:	ipfs://ipfs/Qmaaaaa
+		preview_file2_type		
 			type			:	mimeType
 			description		:	video/mp4
 		

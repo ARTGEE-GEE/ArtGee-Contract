@@ -52,9 +52,9 @@
 
     测试网络：rinkeby(chainId:4)
     DigitalSource   存储artId相关信息（前端和后端调用用不到）
-    0x685f882C19626aedbA3a9A3fa2c6704BD5ec0e65
+    0xa81A6feb597a14D6342664684530ca836d1b17b3
     ArtGeeNft       铸造的nft （铸造使用此合约）
-    0x092953003FAD455951e630EFCB310EAd21E25CDD
+    0xC43c51a464CA8f9b1f1506E0BA95656Fbcedc3fA
     abi： 📎ArtGeeNft.json 在 build/contracts/ArtGeeNft.json 文件中
 
 #### 后端数据日志

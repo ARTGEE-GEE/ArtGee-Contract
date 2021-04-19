@@ -39,7 +39,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
         uint256 totalEdition;
     }
 
-    uint32 public mTotalEdition = 100;
+    uint32 public mTotalEdition = 10000;
 
      // Mapping from owner to list of owned token IDs
     mapping(address => uint256[]) private _ownedTokens;
@@ -171,7 +171,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
             }
             require(_totalPercent == 1000,"Benefits error");
         }
-        require(_count <= mTotalEdition,"Count overflow");
+        require(_totalEdition <= mTotalEdition,"Total edition overflow");
         //create art id
         uint256 _artId = iDigitalSource.createDigitalArt(
                                 msg.sender,

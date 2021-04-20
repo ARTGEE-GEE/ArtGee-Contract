@@ -6,12 +6,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./interfaces/IAgERC721.sol";
 import './base/BaseAuction.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title English auction
 /// @author yzbbanban
 /// @notice buy token
 /// @dev 
-contract EnglishAuction is BaseAuction{
+contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
 
     event Auction(uint256 indexed _auctionId, address _token, uint256 _tokenId,address _seller, 
                     uint256 _openingBid,uint256 _bidIncrements,uint256 _startTime, uint256 _expirationTime,
@@ -67,7 +68,7 @@ contract EnglishAuction is BaseAuction{
     function auction(address _token, uint256 _tokenId,
                     uint256 _openingBid, uint256 _bidIncrements,
                     uint256 _reservePrice, uint256 _startTime,uint256 _expirationTime
-                     ) public{
+                     ) public nonReentrant whenNotPaused{
         require(_expirationTime >= block.timestamp && _expirationTime > _startTime,"Time error");
         require(_reservePrice >= _openingBid, "Price error");
         _auctionIds.increment();
@@ -96,7 +97,7 @@ contract EnglishAuction is BaseAuction{
     //seller
     function reAuction(uint256 _auctionId, 
                         uint256 _openingBid, uint256 _bidIncrements,
-                        uint256 _reservePrice, uint256 _startTime, uint256 _expirationTime) public{
+                        uint256 _reservePrice, uint256 _startTime, uint256 _expirationTime) public nonReentrant whenNotPaused{
         require(_expirationTime >= block.timestamp && _expirationTime > _startTime,"Time error");
         require(_reservePrice >= _openingBid, "Price error");
         BidInfo storage bidInfo = bidInfos[_auctionId];
@@ -129,7 +130,7 @@ contract EnglishAuction is BaseAuction{
     }
 
     //bidder
-    function bid(uint256 _auctionId) payable public{
+    function bid(uint256 _auctionId) payable public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(block.timestamp >= bidInfo.startTime,"Auction not start");
@@ -176,7 +177,7 @@ contract EnglishAuction is BaseAuction{
     }
     
     //sell cancel
-    function cancel(uint256 _auctionId) public{
+    function cancel(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(bidInfo.seller == msg.sender,"Not auction id seller");    
@@ -202,7 +203,7 @@ contract EnglishAuction is BaseAuction{
     }
 
     //seller executor
-    function sellingSettlementPrice(uint256 _auctionId) public{
+    function sellingSettlementPrice(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(msg.sender == bidInfo.seller, "Not seller");
@@ -217,7 +218,7 @@ contract EnglishAuction is BaseAuction{
     }
 
     //bidder execute
-    function bidderReverse(uint256 _auctionId) public{
+    function bidderReverse(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(msg.sender == bidInfo.bidder, "Not bidder");
@@ -234,7 +235,7 @@ contract EnglishAuction is BaseAuction{
     }
 
     //auction success bidder execute
-    function withdraw(uint256 _auctionId) public{
+    function withdraw(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
         require(bidInfo.bidder == msg.sender,"Not bidder");

@@ -193,7 +193,7 @@
 
 
 ### 英式拍：
-	EnglishAuction: 0xcF3a245ea80284BBA45D5713c334A2eC84a0ad5B
+	EnglishAuction: 0x4ED25D22822C71390d191555393Ce442ceC32062
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：
@@ -403,7 +403,7 @@
 ---
 
 ### 一口价:
-	FixedAuction: 0xE02CaaCdEa871F0F751A885FE02dba76Ba04fA33
+	FixedAuction: 0xe6612898A907DF58B3995aF02a039b3528B1C55A
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
 
 	可配置参数：

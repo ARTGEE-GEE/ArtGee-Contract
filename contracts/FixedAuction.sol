@@ -6,12 +6,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./interfaces/IAgERC721.sol";
 import './base/BaseAuction.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title fixed auction
 /// @author yzbbanban
 /// @notice buy token
 /// @dev 
-contract FixedAuction is BaseAuction {
+contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
     event Auction(uint256 indexed _auctionId, address _token, 
                     uint256 _tokenId, address _seller, 
                     uint256 _openingBid, uint256 _fixedPrice,uint32 _auctionStatus);
@@ -68,7 +69,7 @@ contract FixedAuction is BaseAuction {
 
     function auction(address _token, uint256 _tokenId, 
                     uint256 _openingBid,
-                    uint256 _fixedPrice) public{
+                    uint256 _fixedPrice) public nonReentrant whenNotPaused{
         require(_openingBid < _fixedPrice,"Opening bid price must lower than fixedPrice");
         _auctionIds.increment();
         uint256 auctionId = _auctionIds.current();
@@ -89,7 +90,7 @@ contract FixedAuction is BaseAuction {
     }
 
     function reAuction(uint256 _auctionId, uint256 _openingBid, 
-                    uint256 _fixedPrice) public{
+                    uint256 _fixedPrice) public nonReentrant whenNotPaused{
         require(_openingBid < _fixedPrice,"Opening bid price must lower than fixedPrice");
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.token != address(0),"Bid not exist");
@@ -113,7 +114,7 @@ contract FixedAuction is BaseAuction {
         emit ReAuction(_auctionId, _openingBid, _fixedPrice, 0);
     }
 
-    function bid(uint256 _auctionId) payable public{
+    function bid(uint256 _auctionId) payable public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(block.timestamp >= bidInfo.startTime,"Auction not start");
         //now time > expiration time then auction over
@@ -160,7 +161,7 @@ contract FixedAuction is BaseAuction {
     }
     
     //seller cancel
-    function cancel(uint256 _auctionId) public{
+    function cancel(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         uint32 nowStatus = bidInfo.auctionStatus;
@@ -184,7 +185,7 @@ contract FixedAuction is BaseAuction {
     }
 
     //seller executor
-    function sellingSettlementPrice(uint256 _auctionId) public{
+    function sellingSettlementPrice(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(msg.sender == bidInfo.seller, "Not seller");
         require(bidInfo.auctionStatus == 1, "Not on bid");
@@ -194,7 +195,7 @@ contract FixedAuction is BaseAuction {
     }
 
     //bidder execute
-    function bidderReverse(uint256 _auctionId) public{
+    function bidderReverse(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(msg.sender == bidInfo.bidder, "Not bidder");
         // if bidder wanner his coin, current time must over than `reverseTime`
@@ -208,7 +209,7 @@ contract FixedAuction is BaseAuction {
     }
 
     //auction success bidder execute
-    function fixedWithdraw(uint256 _auctionId) payable public{
+    function fixedWithdraw(uint256 _auctionId) payable public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
         require(bidInfo.auctionStatus == 1 || bidInfo.auctionStatus == 0, "Withdraw not on bid or on sell");
         if(bidInfo.bidCount != 0){

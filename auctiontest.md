@@ -1,7 +1,7 @@
 ### contract address
 
     platform: 0x1BECd17aB90562D53b810924a2DA430B91c277C1
-    art: 0x092953003FAD455951e630EFCB310EAd21E25CDD
+    art: 0xC43c51a464CA8f9b1f1506E0BA95656Fbcedc3fA
     assist: 0x36399f72BFC53211FE3527FD1F1d6657ac72c447
     english: 0xc4fbc90a46553Fa0e7F5963b76Fa2b8E755E4a7a
 
@@ -14,7 +14,7 @@
 
 ### english auction test
 
-    english: 0x14872823DC81564A5b7fB1aF1c983eb6c792d222
+    english: 0x4ED25D22822C71390d191555393Ce442ceC32062
     1. 上架：auction
     2. 拍卖：bid
         截止拍卖小于15 min 顺延 15min
@@ -53,28 +53,38 @@
     5. 成交
         a. 卖家成交，买家报价高于保留价、且已到结束时间 √
         b. 买家成交，到保留价、且已结束 √
-    问题：
-        可以reauction
+ 
 ### fiexed auction test
-
+    fiexed 0xe6612898A907DF58B3995aF02a039b3528B1C55A
     1. 上架：auction
-
     2. 拍卖：bid 、 fixed withdraw
         截止拍卖小于15 min 顺延 15min
         使用一口价，则直接成交
-
     3. 卖家主动结算：seller for
-
     4. 拍卖者结算（只要有人参与拍卖，可直接结算）：bidder withdraw
-
     5. 拍卖者取回拍卖资金（结束后需等待5天）bidder reserve
-        
     6. 作品流拍重新上架（没有人拍卖、卖家不想结算）re auction
-
     7. 卖家取消拍卖（没有人拍卖、卖家不想结算）seller cancel
-
     8. 查看拍卖信息 bidInfos
-
     9. 拍卖完成后可自由交易 nft transfer test
-
     10. 状态检查
+
+    测试：
+    1. 上架
+        a. 上架完成之后只要用户没有叫价，卖家就可以取消 
+        b. 上架一口价要高于起始价 √
+        c. 重新上架必须是未成交的状态
+        d. 必须拍卖结束，重新上架若买家未退回资金，则重新上架会退还
+        e. 已取消，则不可再次上架
+    2. 叫价
+        a. 卖家不可叫价 √
+        b. 买家不可重复叫价 √
+        c. 买家金额大于之前小于一口价 √
+        d. 一口价直接成交，若出于叫价状态，则需要把币退给上一个买家 √
+    3. 取消
+        a. 必须在在结束才能执行，且必须是叫价状态 
+        b. 卖家取消，如果买家未退款，则把买家的币退回去 √
+        c. 买家先退款、然后卖家再取消
+        d.
+    4. 买家成交
+        a. 其他不可执行

@@ -47,6 +47,9 @@
     8. 进制艺术家（地址）再传作品和名单
     9. 暂停所有的创建、添加功能
 
+### 铸造流程
+
+	![流程](https://github.com/k1ic/ArtGee-Contract/blob/develop/zblc.png)
 
 ### 铸造合约
 

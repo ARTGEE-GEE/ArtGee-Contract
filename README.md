@@ -49,7 +49,7 @@
 
 ### 铸造流程
 
-	![image](https://github.com/k1ic/ArtGee-Contract/blob/develop/zblc.png)
+![image](https://github.com/k1ic/ArtGee-Contract/blob/develop/image/zblc.png)
 
 ### 铸造合约
 

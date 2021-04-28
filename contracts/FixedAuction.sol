@@ -21,10 +21,10 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
     event LastParam(uint256 _limitTime, uint256 _extendTime, uint256 _reverseTime);
     event Bid(uint256 indexed _auctionId, address _bidder,
                 uint256 _bidPrice, uint256 _bidCount,uint256 _startTime, uint256 _expirationTime,uint32 _auctionStatus);
-    event Selling(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Reverse(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Fixed(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Cancel(uint256 indexed _auctionId, address _seller,uint256 _bidPrice, uint32 _auctionStatus);
+    event Selling(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Reverse(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Fixed(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Cancel(uint256 indexed _auctionId, address _seller,uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
 
     using Counters for Counters.Counter;
     Counters.Counter private _auctionIds;
@@ -116,6 +116,7 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
 
     function bid(uint256 _auctionId) payable public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
         require(block.timestamp >= bidInfo.startTime,"Auction not start");
         //now time > expiration time then auction over
         require(bidInfo.auctionStatus == 0 || bidInfo.auctionStatus == 1, "Not on auction");
@@ -163,6 +164,7 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
     //seller cancel
     function cancel(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         uint32 nowStatus = bidInfo.auctionStatus;
         require(nowStatus == 0 || nowStatus == 1 || nowStatus == 2, "Auction cancel or success");
@@ -181,22 +183,24 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         IERC721 ierc721 = IERC721(bidInfo.token);
         ierc721.safeTransferFrom(address(this),msg.sender, bidInfo.tokenId);
         bidInfo.auctionStatus = 5;
-        emit Cancel(_auctionId, bidInfo.seller, refund, 5);
+        emit Cancel(_auctionId, bidInfo.seller, refund, 5, bidInfo.bidCount);
     }
 
     //seller executor
     function sellingSettlementPrice(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
         require(msg.sender == bidInfo.seller, "Not seller");
         require(bidInfo.auctionStatus == 1, "Not on bid");
         bidInfo.auctionStatus = 3;
         uint256 amount = _share(_auctionId,bidInfo,bidInfo.bidPrice);
-        emit Selling(_auctionId,bidInfo.bidder,amount,3);
+        emit Selling(_auctionId,bidInfo.bidder,amount,3,bidInfo.bidCount);
     }
 
     //bidder execute
     function bidderReverse(uint256 _auctionId) public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
         require(msg.sender == bidInfo.bidder, "Not bidder");
         // if bidder wanner his coin, current time must over than `reverseTime`
         require(bidInfo.auctionStatus == 1, "Reverse must on bid");
@@ -205,12 +209,13 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         transferMain(msg.sender, bidInfo.bidPrice);
         bidInfo.auctionStatus = 2;
         _removeMyAuction(bidInfo.bidder, _auctionId);
-        emit Reverse(_auctionId, bidInfo.bidder, bidInfo.bidPrice,2);
+        emit Reverse(_auctionId, bidInfo.bidder, bidInfo.bidPrice,2,bidInfo.bidCount);
     }
 
     //auction success bidder execute
     function fixedWithdraw(uint256 _auctionId) payable public nonReentrant whenNotPaused{
         BidInfo storage bidInfo = bidInfos[_auctionId];
+        require(bidInfo.token != address(0),"Bid not exist");
         require(bidInfo.auctionStatus == 1 || bidInfo.auctionStatus == 0, "Withdraw not on bid or on sell");
         if(bidInfo.bidCount != 0){
             require(bidInfo.expirationTime >= block.timestamp, "Not on auction");
@@ -225,7 +230,15 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         uint256 amount = _share(_auctionId,bidInfo,bidInfo.fixedPrice);
         // to seller
         bidInfo.bidder = msg.sender;
-        emit Fixed(_auctionId,bidInfo.bidder,amount,4);
+        emit Fixed(_auctionId,bidInfo.bidder,amount,4,bidInfo.bidCount);
+    }
+
+    function setPaused() public onlyOwner(){
+        super._pause();
+    }
+
+    function setUnpaused() public onlyOwner(){
+        super._unpause();
     }
 
     function _share(uint256 _auctionId, BidInfo storage bidInfo, uint256 _price) internal returns(uint256 _amount){

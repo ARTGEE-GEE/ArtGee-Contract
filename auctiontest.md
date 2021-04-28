@@ -11,10 +11,14 @@
     10000000000000000
     15000000000000000
     100
+    en
+    0xEC922D78CC11A5971efEaE8e4c5d7c1462010251
+    fixed
+    0x7016Af24cee645ACD1ac27dba9CA3e35F974e184
 
 ### english auction test
 
-    english: 0x4ED25D22822C71390d191555393Ce442ceC32062
+    english: 0xEC922D78CC11A5971efEaE8e4c5d7c1462010251
     1. 上架：auction
     2. 拍卖：bid
         截止拍卖小于15 min 顺延 15min
@@ -55,7 +59,7 @@
         b. 买家成交，到保留价、且已结束 √
  
 ### fiexed auction test
-    fiexed 0xe6612898A907DF58B3995aF02a039b3528B1C55A
+    fiexed 0x7016Af24cee645ACD1ac27dba9CA3e35F974e184
     1. 上架：auction
     2. 拍卖：bid 、 fixed withdraw
         截止拍卖小于15 min 顺延 15min

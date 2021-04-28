@@ -21,10 +21,10 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
                     uint256 _startTime, uint256 _expirationTime,uint32 _auctionStatus);
     event LastParam(uint256 _extendTime, uint256 _reverseTime);
     event Bid(uint256 indexed _auctionId, address _bidder,uint256 _bidPrice, uint256 _bidCount,uint256 _expirationTime,uint32 _auctionStatus);
-    event Selling(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Reverse(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Withdraw(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus);
-    event Cancel(uint256 indexed _auctionId, address _seller,uint256 _bidPrice, uint32 _auctionStatus);
+    event Selling(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Reverse(uint256 indexed _auctionId, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Withdraw(uint256 indexed _auctionId, address _seller, address _bidder, uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
+    event Cancel(uint256 indexed _auctionId, address _seller,uint256 _bidPrice, uint32 _auctionStatus, uint256 _bidCount);
 
     using Counters for Counters.Counter;
     Counters.Counter private _auctionIds;
@@ -199,7 +199,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         IERC721 ierc721 = IERC721(bidInfo.token);
         ierc721.safeTransferFrom(address(this),msg.sender, bidInfo.tokenId);
         bidInfo.auctionStatus = 5;
-        emit Cancel(_auctionId, bidInfo.seller, refund, 5);
+        emit Cancel(_auctionId, bidInfo.seller, refund, 5,bidInfo.bidCount);
     }
 
     //seller executor
@@ -214,7 +214,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         require(amount >= bidInfo.reservePrice,"Not over reserve price");
         //721 transfer current bidder , get bidder price
         uint256 am = _share(_auctionId, bidInfo, amount);
-        emit Selling(_auctionId,bidInfo.seller,bidInfo.bidder,am,3);
+        emit Selling(_auctionId,bidInfo.seller,bidInfo.bidder,am,3,bidInfo.bidCount);
     }
 
     //bidder execute
@@ -231,7 +231,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         bidInfo.auctionStatus = 2;
         //remove bidder list
         _removeMyAuction(bidInfo.bidder, _auctionId);
-        emit Reverse(_auctionId, bidInfo.bidder, bidInfo.bidPrice, 2);
+        emit Reverse(_auctionId, bidInfo.bidder, bidInfo.bidPrice, 2,bidInfo.bidCount);
     }
 
     //auction success bidder execute
@@ -246,7 +246,15 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         bidInfo.auctionStatus = 4;
         //721 transfer current bidder , get bidder price
         uint256 am = _share(_auctionId, bidInfo, amount);
-        emit Withdraw(_auctionId,bidInfo.seller,bidInfo.bidder,am,4);
+        emit Withdraw(_auctionId,bidInfo.seller,bidInfo.bidder,am,4,bidInfo.bidCount);
+    }
+
+    function setPaused() public onlyOwner(){
+        super._pause();
+    }
+
+    function setUnpaused() public onlyOwner(){
+        super._unpause();
     }
 
     function _share(uint256 _auctionId, BidInfo storage bidInfo,uint256 _price) internal returns(uint256 _amount){

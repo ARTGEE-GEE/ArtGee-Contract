@@ -196,7 +196,7 @@
 
 
 ### 英式拍：
-	EnglishAuction: 0x4ED25D22822C71390d191555393Ce442ceC32062
+	EnglishAuction: 0xEC922D78CC11A5971efEaE8e4c5d7c1462010251
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：
@@ -247,14 +247,16 @@
 				address _seller, //卖家
 				address _bidder,  // 成交人
 				uint256 _bidPrice, // 结算价
-				uint32 _auctionStatus // 拍卖状态：3
+				uint32 _auctionStatus, // 拍卖状态：3
+				uint256 _bidCount //已拍卖次数
 				)
 	5. 买家退款
 		Reverse(
 				uint256 indexed _auctionId, //拍卖id
 				address _bidder,  // 成交人
 				uint256 _bidPrice,  // 结算价
-				uint32 _auctionStatus // 拍卖状态：2
+				uint32 _auctionStatus, // 拍卖状态：2
+				uint256 _bidCount //已拍卖次数
 				);
 	6. 买家结算
 		Withdraw(
@@ -262,14 +264,16 @@
 				address _seller, //卖家
 				address _bidder, // 成交人
 				uint256 _bidPrice, // 结算价
-				uint32 _auctionStatus // 拍卖状态：4
+				uint32 _auctionStatus, // 拍卖状态：4
+				uint256 _bidCount //已拍卖次数
 				)
 	7. 卖家（藏家）取消
 		Cancel(
 				uint256 indexed _auctionId, //拍卖id
 				address _seller, // 卖家
 	                  uint256 _bidPrice, //退回价格，若没有需要退回则为0
-	                  uint32 _auctionStatus // 拍卖状态5
+	                  uint32 _auctionStatus, // 拍卖状态5
+					  uint256 _bidCount //已拍卖次数
 	                  )
 
 
@@ -406,7 +410,7 @@
 ---
 
 ### 一口价:
-	FixedAuction: 0xe6612898A907DF58B3995aF02a039b3528B1C55A
+	FixedAuction: 0x7016Af24cee645ACD1ac27dba9CA3e35F974e184
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
 
 	可配置参数：
@@ -443,7 +447,8 @@
 	            uint256 _bidCount, //当前次数
 	            uint256 _startTime, //开始时间
 	            uint256 _expirationTime,//超时时间
-	            uint32 _auctionStatus //拍卖状态：1
+	            uint32 _auctionStatus, //拍卖状态：1
+				uint256 _bidCount //已拍卖次数
 	            );
 	            
 	  4. 卖家主动结算
@@ -457,21 +462,24 @@
 	  	Reverse(uint256 indexed _auctionId, //拍卖id
 	  			address _bidder, //买家
 	  			uint256 _bidPrice, //退款价格
-	  			uint32 _auctionStatus // 拍卖状态：2
+	  			uint32 _auctionStatus, // 拍卖状态：2
+				uint256 _bidCount //已拍卖次数
 	  			);
 	  			
 	  6. 买家结算(一口价)
 	  	Fixed(uint256 indexed _auctionId, //拍卖id
 			address _bidder, //买家
 			uint256 _bidPrice, //结算价格 去除手续费
-			uint32 _auctionStatus // 拍卖状态：4
+			uint32 _auctionStatus, // 拍卖状态：4
+			uint256 _bidCount //已拍卖次数
 			);
 			
 	   7.  卖家（藏家）取消
 	   	Cancel(uint256 indexed _auctionId, //拍卖id
 			address _seller, //卖家
 			uint256 _bidPrice,  //退回价格，若没有需要退回则为0
-			uint32 _auctionStatus  // 拍卖状态5
+			uint32 _auctionStatus,  // 拍卖状态5
+			uint256 _bidCount //已拍卖次数
 			);	
    
 #### 前端调用

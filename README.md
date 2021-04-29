@@ -448,7 +448,6 @@
 	            uint256 _startTime, //开始时间
 	            uint256 _expirationTime,//超时时间
 	            uint32 _auctionStatus, //拍卖状态：1
-				uint256 _bidCount //已拍卖次数
 	            );
 	            
 	  4. 卖家主动结算
@@ -456,6 +455,7 @@
 	  	 		address _bidder, //买家
 	  	 		uint256 _bidPrice, //结算价格
 	  	 		uint32 _auctionStatus // 拍卖状态：3
+				uint256 _bidCount //已拍卖次数
 	  	 		);
 	  	 		
 	  5. 买家退款

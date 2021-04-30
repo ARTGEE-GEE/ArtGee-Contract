@@ -223,8 +223,8 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     }
 
     function burnItem(uint256 _id) public{
-        _burn(_id);
         require(super.ownerOf(_id) == msg.sender, "ERC721: burn of token that is not own"); // internal owner
+        _burn(_id);
         _removeTokenFromOwnerEnumeration(ownerOf(_id), _id);
         // Since tokenId will be deleted, we can clear its slot in _ownedTokensIndex to trigger a gas refund
         _ownedTokensIndex[_id] = 0;

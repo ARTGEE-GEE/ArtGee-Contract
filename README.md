@@ -196,7 +196,9 @@
 
 
 ### 英式拍：
-	EnglishAuction: 0xEC922D78CC11A5971efEaE8e4c5d7c1462010251
+	EnglishAuction: 
+	1. ****0xEC922D78CC11A5971efEaE8e4c5d7c1462010251**** (作废，此价格使用的是增幅)
+	2. 0xbb498F64481eaA161A2eA557EA1be5B59Ff757e0 （价格使用增量）
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：

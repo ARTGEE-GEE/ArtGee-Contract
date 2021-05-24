@@ -217,7 +217,7 @@
 	                  uint256 _tokenId, //tokenId
 	                  address _seller, //卖家(藏家)
 	                  uint256 _openingBid, //起拍价，精度为 1e18 
-	                  uint256 _bidIncrements, //增长幅度（在上一次的叫价基础上）精度为 1e3
+	                  uint256 _bidIncrements, //增量（在上一次的叫价基础上）精度为 1e18
 	                  uint256 _startTime, // 开始时间 时间戳，秒级
 	                  uint256 _expirationTime, //结束时间，秒级
 	                  uint256 _auctionStatus // 上架状态：0
@@ -227,7 +227,7 @@
 				uint256 indexed _auctionId, //拍卖id
 				uint256 _bidPrice, //退回价格，若有则退回，没有则为0
                     	uint256 _openingBid, //起拍价，精度为 1e18 
-                    	uint256 _bidIncrements, //增长幅度（在上一次的叫价基础上）精度为 1e3
+                    	uint256 _bidIncrements, //增量（在上一次的叫价基础上）精度为 1e18
                     	uint256 _startTime, // 开始时间 时间戳，秒级
                     	uint256 _expirationTime, //结束时间，秒级
                     	uint256 _auctionStatus // 拍卖状态：0
@@ -288,8 +288,7 @@
 				uint256 _tokenId, //nft token id
                     	uint256 _openingBid, //起拍价，精度为 1e18 
                     						//如：1.1 eth 则填写 1100000000000000000
-                    	uint256 _bidIncrements, //增长幅度（在上一次的叫价基础上）精度为 1e3
-                    							//如 10%(0.1) 则填写 100 (0.1*1e3)
+                    	uint256 _bidIncrements, //增量（在上一次的叫价基础上）精度为 1e18
                     	uint256 _reservePrice, //保留价，精度为 1e18 
                     	uint256 _startTime, // 开始时间 时间戳，秒级
                     	uint256 _expirationTime //结束时间，秒级
@@ -339,7 +338,7 @@
 		reAuction(
 				uint256 _auctionId,  //拍卖id
                         uint256 _openingBid,  //起拍价，精度为 1e18 
-                        uint256 _bidIncrements, //增长幅度（在上一次的叫价基础上）精度为 1e3
+                        uint256 _bidIncrements, //增量（在上一次的叫价基础上）精度为 1e18
                         uint256 _reservePrice, //保留价，精度为 1e18 
                         uint256 _startTime, // 开始时间 时间戳，秒级
                         uint256 _expirationTime //结束时间，秒级
@@ -367,7 +366,7 @@
 		address: bidder //当前买家 如：0xF00079382099f609DbC37F5A7EA04F14D4eAD67C
 		uint256: openingBid //起拍价 精度1e18 如：10000000000000000
 		uint256: reservePrice //保留价 精度1e18 如：11000000000000000
-		uint256: bidIncrements //增幅 精度为1e3 如：100  -> 0.1
+		uint256: bidIncrements //增量 精度为1e18 如：11000000000000000
 		uint256: bidPrice //当前叫价 精度1e18 如：12100000000000000
 		uint256: bidCount //已叫次数 如：3
 		uint256: startTime //开始时间 时间戳秒级 如：1618489901

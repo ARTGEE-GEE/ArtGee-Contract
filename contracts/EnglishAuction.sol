@@ -143,7 +143,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         //transfer to last bidder
         if(bidInfo.bidCount!=0){
             transferMain(bidInfo.bidder, bidInfo.bidPrice);
-            nowBidPrice = bidInfo.bidPrice.mul(bidInfo.bidIncrements.add(basePercent)).div(basePercent);
+            nowBidPrice = bidInfo.bidPrice.add(bidInfo.bidIncrements);
         }else{
             nowBidPrice = bidInfo.openingBid;
         }
@@ -171,7 +171,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         BidInfo memory bidInfo = bidInfos[_auctionId];
         uint256 nowBidPrice = bidInfo.bidPrice;
         if(bidInfo.bidCount!=0){
-            nowBidPrice = bidInfo.bidPrice.mul(bidInfo.bidIncrements.add(basePercent)).div(basePercent);
+            nowBidPrice = bidInfo.bidPrice.add(bidInfo.bidIncrements);
         }
         return nowBidPrice;
     }

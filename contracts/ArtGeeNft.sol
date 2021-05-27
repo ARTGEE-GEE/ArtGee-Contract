@@ -24,7 +24,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
     //tokenId => limitCount
     mapping(uint256 => uint256) public limitCount;
     // market => in transfer list
-    mapping(address => bool) transferList;
+    mapping(address => bool) public transferList;
 
     IDigitalSource public iDigitalSource;
 

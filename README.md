@@ -3,6 +3,9 @@
     npm install @openzeppelin/contracts
     npm install @truffle/hdwallet-provider
 
+	remix
+	remixd -s /Users/wangban/Downloads/money/coin/other/artgee/ArtGee-Contract --remix-ide https://remix.ethereum.org
+
 ### deploy
 
     truffle migration --network {network} (--reset)
@@ -55,9 +58,9 @@
 
     测试网络：rinkeby(chainId:4)
     DigitalSource   存储artId相关信息（前端和后端调用用不到）
-    0xa81A6feb597a14D6342664684530ca836d1b17b3
+    0x40Ba38dEcbBB766064B2D7aAb6b5740aee42C2bA
     ArtGeeNft       铸造的nft （铸造使用此合约）
-    0xC43c51a464CA8f9b1f1506E0BA95656Fbcedc3fA
+    0x7dF4fbB90C28e5e73eA22126121ea50660cb5e43
     abi： 📎ArtGeeNft.json 在 build/contracts/ArtGeeNft.json 文件中
 
 #### 后端数据日志
@@ -198,7 +201,7 @@
 ### 英式拍：
 	EnglishAuction: 
 	1. ****0xEC922D78CC11A5971efEaE8e4c5d7c1462010251**** (作废，此价格使用的是增幅)
-	2. 0xbb498F64481eaA161A2eA557EA1be5B59Ff757e0 （价格使用增量）
+	2. 0xDF17794B64e9e909d6150076478842cc239BE348 （价格使用增量）
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：
@@ -411,7 +414,7 @@
 ---
 
 ### 一口价:
-	FixedAuction: 0x7016Af24cee645ACD1ac27dba9CA3e35F974e184
+	FixedAuction: 0x07f11CCEA9EB3c07609b74cc7c8cB7933735fF2D
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
 
 	可配置参数：

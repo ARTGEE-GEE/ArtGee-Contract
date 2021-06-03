@@ -10,6 +10,10 @@ async function deployToken(deployer, network, accounts) {
   const artGeeNft = await ArtGeeNft.deployed();
   const fixedAuction = await FixedAuction.deployed();
   const englishAuction = await EnglishAuction.deployed();
+  console.log('addTransferList start');
+  artGeeNft.addTransferList(fixedAuction.address)
+  artGeeNft.addTransferList(englishAuction.address)
+  console.log('addTransferList success');
   console.log('artGeeNft: '+artGeeNft.address);
   console.log('fixedAuction: '+fixedAuction.address);
   console.log('englishAuction: '+englishAuction.address);

@@ -414,7 +414,7 @@
 ---
 
 ### 一口价:
-	FixedAuction: 0x07f11CCEA9EB3c07609b74cc7c8cB7933735fF2D
+	FixedAuction: 0x32F7E85F83A9EB3105358E73F8dB7D226956E79d
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
 
 	可配置参数：

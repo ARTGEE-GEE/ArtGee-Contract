@@ -17,14 +17,8 @@ contract BaseAuction is Operator{
     //my => auction id => index
     mapping(address => mapping(uint256 => uint256)) myBidInfoIndex;
 
-    uint256[] public artList;
-
     function getMyArtList(address _owner) view public returns(uint256[] memory){
         return myBidInfos[_owner];
-    }
-    
-    function getArtList() view public returns(uint256[] memory _artList){
-        return artList;
     }
 
     function setArtgee(IAgERC721 _artGee,address _platform) public onlyOwner(){

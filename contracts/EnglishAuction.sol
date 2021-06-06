@@ -63,12 +63,18 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
             reverseTime = _reverseTime;
         }
     }
+    
+       
+    function getCurrentArtList() view public returns(uint256){
+        return _auctionIds.current();
+    }
 
     //seller
     function auction(address _token, uint256 _tokenId,
                     uint256 _openingBid, uint256 _bidIncrements,
                     uint256 _reservePrice, uint256 _startTime,uint256 _expirationTime
                      ) public nonReentrant whenNotPaused{
+        require(_openingBid > 0 ,"Must over 0");
         require(_expirationTime >= block.timestamp && _expirationTime > _startTime,"Time error");
         require(_reservePrice >= _openingBid, "Price error");
         _auctionIds.increment();
@@ -89,7 +95,6 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         ierc721.safeTransferFrom(msg.sender, address(this), _tokenId);
         // add my auction
         _addMyAuction(msg.sender,auctionId);
-        artList.push(auctionId);
         emit Auction(auctionId,_token, _tokenId, msg.sender, _openingBid, 
                     _bidIncrements, _startTime,_expirationTime,0);
     }
@@ -169,9 +174,12 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
     
     function getCurrentPrice(uint256 _auctionId) view public returns(uint256 _nowBidPrice){
         BidInfo memory bidInfo = bidInfos[_auctionId];
+        require(bidInfo.expirationTime >= block.timestamp, "Not on auction");
         uint256 nowBidPrice = bidInfo.bidPrice;
         if(bidInfo.bidCount!=0){
             nowBidPrice = bidInfo.bidPrice.add(bidInfo.bidIncrements);
+        }else{
+            nowBidPrice = bidInfo.openingBid;
         }
         return nowBidPrice;
     }
@@ -257,7 +265,7 @@ contract EnglishAuction is BaseAuction, Pausable, ReentrancyGuard {
         super._unpause();
     }
 
-    function _share(uint256 _auctionId, BidInfo storage bidInfo,uint256 _price) internal returns(uint256 _amount){
+    function _share(uint256 _auctionId, BidInfo storage bidInfo,uint256 _price) internal returns(uint256){
         uint256 amount = _price;
         IERC721 ierc721 = IERC721(bidInfo.token);
         ierc721.safeTransferFrom(address(this), bidInfo.bidder, bidInfo.tokenId);

@@ -66,6 +66,10 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
             reverseTime = _reverseTime;
         }
     }
+    
+    function getCurrentArtList() view public returns(uint256){
+        return _auctionIds.current();
+    }
 
     function auction(address _token, uint256 _tokenId, 
                     uint256 _openingBid,
@@ -85,7 +89,6 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         ierc721.safeTransferFrom(msg.sender, address(this), _tokenId);
         // add my auction
         _addMyAuction(msg.sender,auctionId);
-        artList.push(auctionId);
         emit Auction(auctionId,_token, _tokenId, msg.sender, _openingBid,_fixedPrice, 0);
     }
 
@@ -96,7 +99,7 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         require(bidInfo.token != address(0),"Bid not exist");
         uint32 nowStatus = bidInfo.auctionStatus;
         require(nowStatus != 5,"Seller has been canceled");
-        require(nowStatus != 3 || nowStatus != 4,"Auction success");
+        require(nowStatus != 3 && nowStatus != 4,"Auction success");
         //must wait for auction over
         require(bidInfo.seller == msg.sender,"Not auction id seller");
         //bidder has already reverse
@@ -279,7 +282,9 @@ contract FixedAuction is BaseAuction, Pausable, ReentrancyGuard{
         transferMain(bidInfo.seller, amount.sub(_fee).sub(_artistFee));
         _removeMyAuction(bidInfo.seller, _auctionId);
         //remove bidder list
-        _removeMyAuction(bidInfo.bidder, _auctionId);
+        if(bidInfo.bidder != address(0)){
+            _removeMyAuction(bidInfo.bidder, _auctionId);   
+        }
         return amount.sub(_fee).sub(_artistFee);
     }
 

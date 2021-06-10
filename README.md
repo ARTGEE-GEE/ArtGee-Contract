@@ -58,9 +58,9 @@
 
     测试网络：rinkeby(chainId:4)
     DigitalSource   存储artId相关信息（前端和后端调用用不到）
-    0x40Ba38dEcbBB766064B2D7aAb6b5740aee42C2bA
+    0xD6bFF0F36D6a9B934960b6D5E5D5AB4d9719df68
     ArtGeeNft       铸造的nft （铸造使用此合约）
-    0x7dF4fbB90C28e5e73eA22126121ea50660cb5e43
+    0x0C5B4051195207F64031Be87bdBE2fEac972DF76
     abi： 📎ArtGeeNft.json 在 build/contracts/ArtGeeNft.json 文件中
 
 #### 后端数据日志
@@ -201,7 +201,7 @@
 ### 英式拍：
 	EnglishAuction: 
 	1. ****0xEC922D78CC11A5971efEaE8e4c5d7c1462010251**** (作废，此价格使用的是增幅)
-	2. 0xDF17794B64e9e909d6150076478842cc239BE348 （价格使用增量）
+	2. 0x1e2B119475e606eB7eedD2d209365Be654C10D13 （价格使用增量）
 	abi： 📎EnglishAuction.json 在 build/contracts/EnglishAuction.json 文件中
 
 	可配置参数：
@@ -414,7 +414,7 @@
 ---
 
 ### 一口价:
-	FixedAuction: 0x32F7E85F83A9EB3105358E73F8dB7D226956E79d
+	FixedAuction: 0x8966441BadE173B6d61a45EB82d2f32feC79C5Ab
 	abi： 📎FixedAuction.json 在 build/contracts/FixedAuction.json 文件中
 
 	可配置参数：

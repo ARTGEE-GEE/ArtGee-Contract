@@ -50,8 +50,8 @@ contract BaseAuction is Operator{
     }
 
     function transferMain(address _address, uint256 _value) internal{
-        (bool res, ) = address(uint160(_address)).call{value:_value}("");
-        require(res,"TRANSFER ETH ERROR");
+        (bool res, ) = address(uint160(_address)).call{value:_value, gas:20000}("");
+        // require(res,"TRANSFER ETH ERROR");
     }
 
     /**

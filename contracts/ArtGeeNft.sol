@@ -55,7 +55,7 @@ contract ArtGeeNft is ERC721, Operator, Pausable{
 
     mapping(address => bool) public miners;
 
-    constructor(IDigitalSource _iDigitalSource) public ERC721("AAAA aaa", "AAAA") {
+    constructor(IDigitalSource _iDigitalSource) public ERC721("GeeToken", "GT") {
         iDigitalSource = _iDigitalSource;
         super._setBaseURI("ipfs://ipfs/");
     }
